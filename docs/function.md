@@ -95,6 +95,20 @@ foo() // 101
 
 上面代码中，参数`p`的默认值是`x + 1`。这时，每次调用函数`foo`，都会重新计算`x + 1`，而不是默认`p`等于 100。
 
+不仅如此，由于参数默认值是惰性求值，所以，声明形参`p`时，`x`还未定义，是不会报错的，只有在调用时才会报错：
+
+```js
+// let x = 99;
+
+function foo(p = x + 1) { // 并不报错
+  console.log(p);
+}
+
+foo() // 报错 Uncaught ReferenceError: x is not defined
+```
+
+
+
 ### 与解构赋值默认值结合使用
 
 参数默认值可以与解构赋值的默认值，结合起来使用。
@@ -186,9 +200,11 @@ m1({z: 3}) // [0, 0]
 m2({z: 3}) // [undefined, undefined]
 ```
 
+
+
 ### 参数默认值的位置
 
-通常情况下，定义了默认值的参数，应该是函数的尾参数。因为这样比较容易看出来，到底省略了哪些参数。如果非尾部的参数设置默认值，实际上这个参数是没法省略的。
+通常情况下，定义了默认值的参数，应该是函数的尾参数。因为这样比较容易看出来，到底省略了哪些参数。**如果非尾部的参数设置默认值，实际上这个参数是没法省略的。**
 
 ```javascript
 // 例一
@@ -214,7 +230,7 @@ f(1, undefined, 2) // [1, 5, 2]
 
 上面代码中，有默认值的参数都不是尾参数。这时，无法只省略该参数，而不省略它后面的参数，除非显式输入`undefined`。
 
-如果传入`undefined`，将触发该参数等于默认值，`null`则没有这个效果。
+**如果传入`undefined`，将触发该参数等于默认值，`null`则没有这个效果。**
 
 ```javascript
 function foo(x = 5, y = 6) {
@@ -227,9 +243,11 @@ foo(undefined, null)
 
 上面代码中，`x`参数对应`undefined`，结果触发了默认值，`y`参数等于`null`，就没有触发默认值。
 
+
+
 ### 函数的 length 属性
 
-指定了默认值以后，函数的`length`属性，将返回没有指定默认值的参数个数。也就是说，指定了默认值后，`length`属性将失真。
+**指定了默认值以后，函数的`length`属性，将返回没有指定默认值的参数个数。**也就是说，指定了默认值后，`length`属性将失真。
 
 ```javascript
 (function (a) {}).length // 1
@@ -251,6 +269,8 @@ foo(undefined, null)
 (function (a = 0, b, c) {}).length // 0
 (function (a, b = 1, c) {}).length // 1
 ```
+
+
 
 ### 作用域
 
@@ -306,7 +326,7 @@ function foo(x = x) {
 foo() // ReferenceError: x is not defined
 ```
 
-上面代码中，参数`x = x`形成一个单独作用域。实际执行的是`let x = x`，由于暂时性死区的原因，这行代码会报错”x 未定义“。
+上面代码中，参数`x = x`形成一个单独作用域。实际执行的是`let x = x`，由于暂时性死区的原因，这行代码会报错“`x` 未定义”。
 
 如果参数的默认值是一个函数，该函数的作用域也遵守这个规则。请看下面的例子。
 
@@ -366,6 +386,8 @@ foo() // 2
 x // 1
 ```
 
+
+
 ### 应用
 
 利用参数默认值，可以指定某一个参数不得省略，如果省略就抛出一个错误。
@@ -418,7 +440,9 @@ add(2, 5, 3) // 10
 ```javascript
 // arguments变量的写法
 function sortNumbers() {
-  return Array.prototype.slice.call(arguments).sort();
+  return Array.prototype.slice.call(arguments).sort(); 
+  // 或者ES6的 Array新方法Array.from();
+  // return Array.from(arguments).sort();
 }
 
 // rest参数的写法
@@ -427,7 +451,7 @@ const sortNumbers = (...numbers) => numbers.sort();
 
 上面代码的两种写法，比较后可以发现，rest 参数的写法更自然也更简洁。
 
-`arguments`对象不是数组，而是一个类似数组的对象。所以为了使用数组的方法，必须使用`Array.prototype.slice.call`先将其转为数组。rest 参数就不存在这个问题，它就是一个真正的数组，数组特有的方法都可以使用。下面是一个利用 rest 参数改写数组`push`方法的例子。
+`arguments`对象不是数组，而是一个类似数组的对象。所以为了使用数组的方法，必须使用`Array.prototype.slice.call()`或者`Array.from()`先将其转为数组。rest 参数就不存在这个问题，它就是一个真正的数组，数组特有的方法都可以使用。下面是一个利用 rest 参数改写数组`push`方法的例子。
 
 ```javascript
 function push(array, ...items) {
@@ -458,6 +482,8 @@ function f(a, ...b, c) {
 (function(a, ...b) {}).length  // 1
 ```
 
+
+
 ## 严格模式
 
 从 ES5 开始，函数内部可以设定为严格模式。
@@ -469,7 +495,7 @@ function doSomething(a, b) {
 }
 ```
 
-ES2016 做了一点修改，规定只要函数参数使用了默认值、解构赋值、或者扩展运算符，那么函数内部就不能显式设定为严格模式，否则会报错。
+**ES2016 做了一点修改，规定只要函数参数使用了默认值、解构赋值、或者扩展运算符，那么函数内部就不能显式设定为严格模式，否则会报错。**
 
 ```javascript
 // 报错
@@ -513,7 +539,9 @@ function doSomething(value = 070) {
 
 虽然可以先解析函数体代码，再执行参数代码，但是这样无疑就增加了复杂性。因此，标准索性禁止了这种用法，只要参数使用了默认值、解构赋值、或者扩展运算符，就不能显式指定严格模式。
 
-两种方法可以规避这种限制。第一种是设定全局性的严格模式，这是合法的。
+2种方法可以规避这种限制：
+
+- 第1种是设定全局性的严格模式，这是合法的。
 
 ```javascript
 'use strict';
@@ -523,7 +551,7 @@ function doSomething(a, b = a) {
 }
 ```
 
-第二种是把函数包在一个无参数的立即执行函数里面。
+- 第2种是把函数包在一个无参数的立即执行函数里面。
 
 ```javascript
 const doSomething = (function () {
@@ -533,6 +561,8 @@ const doSomething = (function () {
   };
 }());
 ```
+
+
 
 ## name 属性
 
@@ -575,6 +605,9 @@ bar.name // "baz"
 
 ```javascript
 (new Function).name // "anonymous"
+
+let f = new Function()
+f.name // "anonymous"
 ```
 
 `bind`返回的函数，`name`属性值会加上`bound`前缀。
@@ -585,6 +618,8 @@ foo.bind({}).name // "bound foo"
 
 (function(){}).bind({}).name // "bound "
 ```
+
+
 
 ## 箭头函数
 
