@@ -741,32 +741,118 @@ headAndTail(1, 2, 3, 4, 5)
 
 ### 使用注意点
 
-箭头函数有几个使用注意点。
+**箭头函数有几个使用注意点：**
 
-（1）函数体内的`this`对象，就是定义时所在的对象，而不是使用时所在的对象。
+1. **以下4个变量在箭头函数之中是不存在的，其指向外层函数的对应变量：**
 
-（2）不可以当作构造函数，也就是说，不可以使用`new`命令，否则会抛出一个错误。
+- `this`：`this`在箭头函数之中是不存在的，其指向外层函数的对应变量。所以箭头函数体内的`this`对象，就是定义时所在的对象，而不是使用时所在的对象。
+- `arguments`：建议不要在箭头函数中使用`arguments`，可以用 rest 参数代替。
+- `super`
+- `new.target`
 
-（3）不可以使用`arguments`对象，该对象在函数体内不存在。如果要用，可以用 rest 参数代替。
+2. **因为箭头函数没有`this`，所以也就不能用作构造函数，也就是说，不可以使用`new`命令，否则会抛出一个错误。**
+3. **不可以使用`yield`命令，因此箭头函数不能用作 Generator 函数。**
 
-（4）不可以使用`yield`命令，因此箭头函数不能用作 Generator 函数。
+`this`在箭头函数之中是不存在的，其指向外层函数的对应变量。所以箭头函数体内的`this`对象，就是定义时所在的对象，而不是使用时所在的对象：
 
-上面四点中，第一点尤其值得注意。`this`对象的指向是可变的，但是在箭头函数中，它是固定的。
+```js
+var color = 'red'
+
+function f1(){
+    return ()=>{console.log(this.color)}; // 箭头函数中的this指向外层函数的this
+}
+
+f1()()  // 等同于window.f1()(), 箭头函数中的this指向外层函数的this，即window
+//red
+
+f1.call({color:'blue'})() //使用call方法将函数foo的this指向对象{color:'blue'}
+// blue
+```
+
+再来看一个例子：
+
+```js
+var name = 'Window';
+
+let obj1 = {
+    name:'Neo',
+    showThis: function(){ //普通函数，this默认指向obj1
+        console.log(this.name);
+    }
+};
+
+let obj2 = {
+    name:'Neo',
+    showThis: ()=>{  // 箭头函数没有外层函数，所以箭头函数中的this指向全局对象window
+        console.log(this.name);
+    }
+};
+
+let obj3 = {
+    name:'Neo',
+    showThis: function() {
+        (()=>{  // 箭头函数有外层函数，而外层函数的this指向了obj3，所以箭头函数内的this也指向obj3
+            console.log(this.name)
+        })(); // 此箭头函数是一个立即执行函数；
+    }
+};
+
+obj1.showThis();
+// Neo
+obj1.showThis.call(window);
+// Window
+
+obj2.showThis();
+// Window
+obj2.showThis.call(obj2);  //即使使用call方法调用，this依然指向定义时的对象
+// Window
+
+obj3.showThis(); // 箭头函数有外层函数，而外层函数的this指向了obj3，所以箭头函数内的this也指向obj3
+// Neo
+obj3.showThis.call(obj3);
+// Neo
+obj3.showThis.call(window);
+// Window
+```
+
+请问下面的代码之中有几个`this`？
+
+```javascript
+function foo() {
+  return () => { // 箭头函数中的this就是外层函数foo中的this
+    return () => { // 箭头函数中的this就是外层函数的this
+      return () => {
+        console.log('id:', this.id);  // 箭头函数中的this就是外层函数的this
+      };
+    };
+  };
+}
+
+var f = foo.call({id: 1});  //使用call方法将函数foo的this指向对象{id:1}
+
+var t1 = f.call({id: 2})()(); // id: 1
+var t2 = f().call({id: 3})(); // id: 1
+var t3 = f()().call({id: 4}); // id: 1
+```
+
+上面代码之中，只有一个`this`，就是函数`foo`的`this`，所以`t1`、`t2`、`t3`都输出同样的结果。因为所有的内层函数都是箭头函数，都没有自己的`this`，它们的`this`其实都是最外层`foo`函数的`this`。
+
+`this`对象的指向是可变的，但是在箭头函数中，`this`总是指向定义时所在的对象：
 
 ```javascript
 function foo() {
   setTimeout(() => {
-    console.log('id:', this.id);
+    console.log('id:', this.id); //箭头函数内的this指向外层函数foo中的this;
   }, 100);
 }
 
 var id = 21;
 
-foo.call({ id: 42 });
+foo.call({ id: 42 }); // 注意：foo函数被调用时，内层的箭头函数才被定义，所以箭头函数中的this指向执行外层函数的对象
 // id: 42
 ```
 
-上面代码中，`setTimeout()`的参数是一个箭头函数，这个箭头函数的定义生效是在`foo`函数生成时，而它的真正执行要等到 100 毫秒后。如果是普通函数，执行时`this`应该指向全局对象`window`，这时应该输出`21`。但是，箭头函数导致`this`总是指向函数定义生效时所在的对象（本例是`{id: 42}`），所以打印出来的是`42`。
+上面代码中，`setTimeout()`的参数是一个箭头函数，这个箭头函数的定义生效是在`foo`函数生成时，而它的真正执行要等到 100 毫秒后。如果是普通函数，执行时`this`应该指向全局对象`window`，这时应该输出`21`。但是，请注意，箭头函数是在`foo`函数被调用时才被定义的，所以`this`总是指向箭头函数定义生效时所在的对象（本例是`{id: 42}`），所以打印出来的是`42`。
 
 箭头函数可以让`setTimeout`里面的`this`，绑定定义时所在的作用域，而不是指向运行时所在的作用域。下面是另一个例子。
 
@@ -775,22 +861,44 @@ function Timer() {
   this.s1 = 0;
   this.s2 = 0;
   // 箭头函数
-  setInterval(() => this.s1++, 1000);
+  setInterval(() => this.s1++, 1000); // this指向定义时所在的对象，即new Timer()创建的对象
+  
   // 普通函数
-  setInterval(function () {
-    this.s2++;
+  setInterval(function () {  // 指向执行时所在的对象，由于不是对象方法也没有使用call方法调用，所以this默认是指向window
+    this.s2++; // this指向window，而window并没有timer对象的属性s2，所以也就无法修改s2；
   }, 1000);
 }
 
-var timer = new Timer();
+var timer = new Timer(); // 两个匿名函数被定义
 
-setTimeout(() => console.log('s1: ', timer.s1), 3100);
-setTimeout(() => console.log('s2: ', timer.s2), 3100);
-// s1: 3
-// s2: 0
+setTimeout(() => console.log('s1: ', timer.s1), 3100);  // s1: 3
+setTimeout(() => console.log('s2: ', timer.s2), 3100);  // s2: 0
 ```
 
-上面代码中，`Timer`函数内部设置了两个定时器，分别使用了箭头函数和普通函数。前者的`this`绑定定义时所在的作用域（即`Timer`函数），后者的`this`指向运行时所在的作用域（即全局对象）。所以，3100 毫秒之后，`timer.s1`被更新了 3 次，而`timer.s2`一次都没更新。
+上面代码中，`Timer`函数内部设置了两个定时器，分别使用了箭头函数和普通函数。前者的`this`绑定定义时所在的作用域（即`Timer`函数），后者的`this`指向运行时所在的作用域（即全局对象`window`）。所以，3100 毫秒之后，`timer.s1`被更新了 3 次，而`timer.s2`一次都没更新。
+
+修改上述代码可以更明确地验证这一点：
+
+```js
+function Timer() {
+  this.s1 = 0;
+  this.s2 = 0;
+  // 箭头函数
+  setInterval(() =>{console.log(this)}, 1000); // this指向定义时所在的对象，即new Timer()创建的对象
+  
+  // 普通函数
+  setInterval(function () {  // 指向执行时所在的对象，由于不是对象方法也没有使用call方法调用，所以this默认是指向window
+    console.log(this);  // this指向window
+  }, 1000);
+}
+
+var timer = new Timer(); // 两个匿名函数被定义
+
+// 周期性依次输出
+// Timer {s1: 0, s2: 0}
+// Window {window: Window, self: Window, document: document, name: "window", location: Location, …}
+// ...
+```
 
 箭头函数可以让`this`指向固定化，这种特性很有利于封装回调函数。下面是一个例子，DOM 事件的回调函数封装在一个对象里面。
 
@@ -809,9 +917,7 @@ var handler = {
 };
 ```
 
-上面代码的`init`方法中，使用了箭头函数，这导致这个箭头函数里面的`this`，总是指向`handler`对象。否则，回调函数运行时，`this.doSomething`这一行会报错，因为此时`this`指向`document`对象。
-
-`this`指向的固定化，并不是因为箭头函数内部有绑定`this`的机制，实际原因是箭头函数根本没有自己的`this`，导致内部的`this`就是外层代码块的`this`。正是因为它没有`this`，所以也就不能用作构造函数。
+上面代码的`init`方法中，使用了箭头函数，这导致这个箭头函数里面的`this`，总是指向`handler`对象。否则，回调函数运行时，`this.doSomething`这一行会报错，因为此时回调函数是由`document`对象调用的，所以`this`指向`document`对象。
 
 所以，箭头函数转成 ES5 的代码如下。
 
@@ -819,7 +925,7 @@ var handler = {
 // ES6
 function foo() {
   setTimeout(() => {
-    console.log('id:', this.id);
+    console.log('id:', this.id);  // 箭头函数中的this就是函数foo中的this；
   }, 100);
 }
 
@@ -835,29 +941,11 @@ function foo() {
 
 上面代码中，转换后的 ES5 版本清楚地说明了，箭头函数里面根本没有自己的`this`，而是引用外层的`this`。
 
-请问下面的代码之中有几个`this`？
+**除了`this`，以下3个变量在箭头函数之中也是不存在的，指向外层函数的对应变量：**
 
-```javascript
-function foo() {
-  return () => {
-    return () => {
-      return () => {
-        console.log('id:', this.id);
-      };
-    };
-  };
-}
-
-var f = foo.call({id: 1});
-
-var t1 = f.call({id: 2})()(); // id: 1
-var t2 = f().call({id: 3})(); // id: 1
-var t3 = f()().call({id: 4}); // id: 1
-```
-
-上面代码之中，只有一个`this`，就是函数`foo`的`this`，所以`t1`、`t2`、`t3`都输出同样的结果。因为所有的内层函数都是箭头函数，都没有自己的`this`，它们的`this`其实都是最外层`foo`函数的`this`。
-
-除了`this`，以下三个变量在箭头函数之中也是不存在的，指向外层函数的对应变量：`arguments`、`super`、`new.target`。
+- `arguments`
+- `super`
+- `new.target`
 
 ```javascript
 function foo() {
@@ -872,7 +960,16 @@ foo(2, 4, 6, 8)
 
 上面代码中，箭头函数内部的变量`arguments`，其实是函数`foo`的`arguments`变量。
 
-另外，由于箭头函数没有自己的`this`，所以当然也就不能用`call()`、`apply()`、`bind()`这些方法去改变`this`的指向。
+**`this`指向的固定化，并不是因为箭头函数内部有绑定`this`的机制，实际原因是箭头函数根本没有自己的`this`，导致内部的`this`就是外层代码块的`this`。正是因为它没有`this`，所以也就不能用作构造函数，也就是说，不可以使用`new`命令，否则会抛出一个错误：**
+
+```js
+const C = (name)=>{this.name = name}
+
+let c = new C('Peter')
+// Uncaught TypeError: C is not a constructor at <anonymous>:3:9
+```
+
+**另外，由于箭头函数没有自己的`this`，所以当然也就不能用`call()`、`apply()`、`bind()`这些方法去改变`this`的指向。**
 
 ```javascript
 (function() {
@@ -889,9 +986,9 @@ foo(2, 4, 6, 8)
 
 ### 不适用场合
 
-由于箭头函数使得`this`从“动态”变成“静态”，下面两个场合不应该使用箭头函数。
+**由于箭头函数使得`this`从“动态”变成“静态”，下面2个场合不应该使用箭头函数：**
 
-第一个场合是定义对象的方法，且该方法内部包括`this`。
+- **第1个场合是定义对象的方法，且该方法内部包括`this`：**
 
 ```javascript
 const cat = {
@@ -902,9 +999,9 @@ const cat = {
 }
 ```
 
-上面代码中，`cat.jumps()`方法是一个箭头函数，这是错误的。调用`cat.jumps()`时，如果是普通函数，该方法内部的`this`指向`cat`；如果写成上面那样的箭头函数，使得`this`指向全局对象，因此不会得到预期结果。这是因为对象不构成单独的作用域，导致`jumps`箭头函数定义时的作用域就是全局作用域。
+上面代码中，`cat.jumps()`方法是一个箭头函数，这是错误的。调用`cat.jumps()`时，如果是普通函数，该方法内部的`this`指向`cat`；如果写成上面那样的箭头函数，使得`this`指向全局对象，因此不会得到预期结果。**这是因为对象不构成单独的作用域，导致`jumps`箭头函数定义时的作用域就是全局作用域。**
 
-第二个场合是需要动态`this`的时候，也不应使用箭头函数。
+- **第2个场合是需要动态`this`的时候，也不应使用箭头函数。**
 
 ```javascript
 var button = document.getElementById('press');
