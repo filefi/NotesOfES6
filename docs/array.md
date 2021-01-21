@@ -4,7 +4,7 @@
 
 ### 含义
 
-扩展运算符（spread）是三个点（`...`）。它好比 rest 参数的逆运算，将一个数组转为用逗号分隔的参数序列。
+扩展运算符（spread）是三个点（`...`）。**扩展运算符会调用遍历器接口（`Symbol.iterator`），如果一个对象没有部署这个接口，就无法转换。**它好比 rest 参数的逆运算，将一个数组转为用逗号分隔的参数序列。
 
 ```javascript
 console.log(...[1, 2, 3])
@@ -248,6 +248,11 @@ const [first, ...middle, last] = [1, 2, 3, 4, 5];
 扩展运算符还可以将字符串转为真正的数组。
 
 ```javascript
+//ES5
+'hello'.split('')
+// [ "h", "e", "l", "l", "o" ]
+
+//ES6
 [...'hello']
 // [ "h", "e", "l", "l", "o" ]
 ```
@@ -285,7 +290,7 @@ str.split('').reverse().join('')
 
 **（5）实现了 Iterator 接口的对象**
 
-任何定义了遍历器（Iterator）接口的对象（参阅 Iterator 一章），都可以用扩展运算符转为真正的数组。
+**任何定义了遍历器（Iterator）接口的对象（参阅 Iterator 一章），都可以用扩展运算符转为真正的数组。**
 
 ```javascript
 let nodeList = document.querySelectorAll('div');
@@ -361,7 +366,10 @@ let arr = [...obj]; // TypeError: Cannot spread non-iterable object
 
 ## Array.from()
 
-`Array.from`方法用于将两类对象转为真正的数组：类似数组的对象（array-like object）和可遍历（iterable）的对象（包括 ES6 新增的数据结构 Set 和 Map）。
+**`Array.from`方法用于将两类对象转为真正的数组：**
+
+- 类似数组的对象（array-like object）：类似数组的对象（array-like object）本质特征只有一点，即必须有`length`属性。因此，任何有`length`属性的对象，都可以通过`Array.from`方法转为数组，而此时扩展运算符就无法转换。
+- 可遍历（iterable）的对象（包括 ES6 新增的数据结构 Set 和 Map）
 
 下面是一个类似数组的对象，`Array.from`将它转为真正的数组。
 
@@ -375,9 +383,10 @@ let arrayLike = {
 
 // ES5的写法
 var arr1 = [].slice.call(arrayLike); // ['a', 'b', 'c']
+var arr2 = Array.prototype.slice.call(arrayLike); // ['a', 'b', 'c']
 
 // ES6的写法
-let arr2 = Array.from(arrayLike); // ['a', 'b', 'c']
+let arr3 = Array.from(arrayLike); // ['a', 'b', 'c']
 ```
 
 实际应用中，常见的类似数组的对象是 DOM 操作返回的 NodeList 集合，以及函数内部的`arguments`对象。`Array.from`都可以将它们转为真正的数组。
@@ -429,7 +438,7 @@ function foo() {
 [...document.querySelectorAll('div')]
 ```
 
-扩展运算符背后调用的是遍历器接口（`Symbol.iterator`），如果一个对象没有部署这个接口，就无法转换。`Array.from`方法还支持类似数组的对象。所谓类似数组的对象，本质特征只有一点，即必须有`length`属性。因此，任何有`length`属性的对象，都可以通过`Array.from`方法转为数组，而此时扩展运算符就无法转换。
+**扩展运算符背后调用的是遍历器接口（`Symbol.iterator`），如果一个对象没有部署这个接口，就无法转换。**`Array.from`方法还支持类似数组的对象。所谓类似数组的对象，本质特征只有一点，即必须有`length`属性。因此，任何有`length`属性的对象，都可以通过`Array.from`方法转为数组，而此时扩展运算符就无法转换。
 
 ```javascript
 Array.from({ length: 3 });
@@ -589,6 +598,8 @@ i32a.copyWithin(0, 2);
 
 // 对于没有部署 TypedArray 的 copyWithin 方法的平台
 // 需要采用下面的写法
+[].copyWithin.call(new Int32Array([1, 2, 3, 4, 5]), 0, 2);
+// Int32Array [3, 4, 5, 4, 5]
 [].copyWithin.call(new Int32Array([1, 2, 3, 4, 5]), 0, 3, 4);
 // Int32Array [4, 2, 3, 4, 5]
 ```
