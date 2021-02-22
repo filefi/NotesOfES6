@@ -144,7 +144,7 @@ console.log({user, foo})
 
 上面代码中，`console.log`直接输出`user`和`foo`两个对象时，就是两组键值对，可能会混淆。把它们放在大括号里面输出，就变成了对象的简洁表示法，每组键值对前面会打印对象名，这样就比较清晰了。
 
-注意，简写的对象方法不能用作构造函数，会报错。
+**注意，简写的对象方法不能用作构造函数，会报错。**
 
 ```javascript
 const obj = {
@@ -190,6 +190,7 @@ let obj = {
   [propKey]: true,
   ['a' + 'bc']: 123
 };
+// {foo: true, abc: 123}
 ```
 
 下面是另一个例子。
@@ -219,7 +220,7 @@ let obj = {
 obj.hello() // hi
 ```
 
-注意，属性名表达式与简洁表示法，不能同时使用，会报错。
+**注意，属性名表达式与简洁表示法，不能同时使用，会报错。**
 
 ```javascript
 // 报错
@@ -232,7 +233,7 @@ const foo = 'bar';
 const baz = { [foo]: 'abc'};
 ```
 
-注意，属性名表达式如果是一个对象，默认情况下会自动将对象转为字符串`[object Object]`，这一点要特别小心。
+**注意，属性名表达式如果是一个对象，默认情况下会自动将对象转为字符串`[object Object]`，这一点要特别小心。**
 
 ```javascript
 const keyA = {a: 1};
@@ -285,6 +286,8 @@ descriptor.set.name // "set foo"
 
 ```javascript
 (new Function()).name // "anonymous"
+(function(){}).name   // ""
+(()=>{}).name  // ""
 
 var doSomething = function() {
   // ...
@@ -326,7 +329,7 @@ Object.getOwnPropertyDescriptor(obj, 'foo')
 
 描述对象的`enumerable`属性，称为“可枚举性”，如果该属性为`false`，就表示某些操作会忽略当前属性。
 
-目前，有四个操作会忽略`enumerable`为`false`的属性。
+目前，有4个操作会忽略`enumerable`为`false`的属性。
 
 - `for...in`循环：只遍历对象自身的和继承的可枚举的属性。
 - `Object.keys()`：返回对象自身的所有可枚举的属性的键名。
@@ -393,7 +396,7 @@ Reflect.ownKeys({ [Symbol()]:0, b:0, 10:0, 2:0, a:0 })
 
 ## super 关键字
 
-我们知道，`this`关键字总是指向函数所在的当前对象，ES6 又新增了另一个类似的关键字`super`，指向当前对象的原型对象。
+我们知道，`this`关键字总是指向函数所在的当前对象，ES6 又新增了另一个类似的**关键字`super`，指向当前对象的原型对象。**
 
 ```javascript
 const proto = {
@@ -482,6 +485,9 @@ z // { a: 3, b: 4 }
 ```javascript
 let { ...z } = null; // 运行时错误
 let { ...z } = undefined; // 运行时错误
+
+let { ...z } = Object(null); // {}
+let { ...z } = Object(undefined); // {}
 ```
 
 解构赋值必须是最后一个参数，否则会报错。
@@ -493,7 +499,7 @@ let { x, ...y, ...z } = someObject; // 句法错误
 
 上面代码中，解构赋值不是最后一个参数，所以会报错。
 
-注意，解构赋值的拷贝是浅拷贝，即如果一个键的值是复合类型的值（数组、对象、函数）、那么解构赋值拷贝的是这个值的引用，而不是这个值的副本。
+**注意，解构赋值的拷贝是浅拷贝，**即如果一个键的值是复合类型的值（数组、对象、函数）、那么解构赋值拷贝的是这个值的引用，而不是这个值的副本。
 
 ```javascript
 let obj = { a: { b: 1 } };
@@ -554,7 +560,7 @@ function wrapperFunction({ x, y, ...restConfig }) {
 
 ### 扩展运算符
 
-对象的扩展运算符（`...`）用于取出参数对象的所有可遍历属性，拷贝到当前对象之中。
+**对象的扩展运算符（`...`）用于取出参数对象的所有可遍历属性，拷贝到当前对象之中。**
 
 ```javascript
 let z = { a: 3, b: 4 };
