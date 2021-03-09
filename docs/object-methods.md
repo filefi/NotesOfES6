@@ -6,7 +6,7 @@
 
 ES5 比较两个值是否相等，只有两个运算符：相等运算符（`==`）和严格相等运算符（`===`）。它们都有缺点，前者会自动转换数据类型，后者的`NaN`不等于自身，以及`+0`等于`-0`。JavaScript 缺乏一种运算，在所有环境中，只要两个值是一样的，它们就应该相等。
 
-ES6 提出“Same-value equality”（同值相等）算法，用来解决这个问题。`Object.is`就是部署这个算法的新方法。它用来比较两个值是否严格相等，与严格比较运算符（===）的行为基本一致。
+ES6 提出“Same-value equality”（同值相等）算法，用来解决这个问题。**`Object.is`就是部署这个算法的新方法。它用来比较两个值是否严格相等，与严格比较运算符（===）的行为基本一致。**
 
 ```javascript
 Object.is('foo', 'foo')
@@ -91,6 +91,9 @@ typeof Object.assign(2) // "object"
 ```javascript
 Object.assign(undefined) // 报错
 Object.assign(null) // 报错
+
+Object.assign(Object(undefined)) // {}
+Object.assign(Object(null)) // {}
 ```
 
 如果非对象参数出现在源对象的位置（即非首参数），那么处理规则有所不同。首先，这些参数都会转成对象，如果无法转成对象，就会跳过。这意味着，如果`undefined`和`null`不在首参数，就不会报错。
@@ -312,7 +315,7 @@ processContent({ url: {port: 8000} })
 
 ## Object.getOwnPropertyDescriptors()
 
-ES5 的`Object.getOwnPropertyDescriptor()`方法会返回某个对象属性的描述对象（descriptor）。ES2017 引入了`Object.getOwnPropertyDescriptors()`方法，返回指定对象所有自身属性（非继承属性）的描述对象。
+ES5 的`Object.getOwnPropertyDescriptor(obj,prop)`方法会返回某个对象属性的描述对象（descriptor）。ES2017 引入了**`Object.getOwnPropertyDescriptors(obj)`方法，返回指定对象所有自身属性*（非继承属性）*的描述对象。**
 
 ```javascript
 const obj = {
@@ -347,7 +350,7 @@ function getOwnPropertyDescriptors(obj) {
 }
 ```
 
-该方法的引入目的，主要是为了解决`Object.assign()`无法正确拷贝`get`属性和`set`属性的问题。
+**该方法的引入目的，主要是为了解决`Object.assign()`无法正确拷贝`get`属性和`set`属性的问题。**
 
 ```javascript
 const source = {
@@ -368,7 +371,9 @@ Object.getOwnPropertyDescriptor(target1, 'foo')
 
 上面代码中，`source`对象的`foo`属性的值是一个赋值函数，`Object.assign`方法将这个属性拷贝给`target1`对象，结果该属性的值变成了`undefined`。这是因为`Object.assign`方法总是拷贝一个属性的值，而不会拷贝它背后的赋值方法或取值方法。
 
-这时，`Object.getOwnPropertyDescriptors()`方法配合`Object.defineProperties()`方法，就可以实现正确拷贝。
+### 用法：
+
+**用法1：`Object.getOwnPropertyDescriptors()`方法配合`Object.defineProperties()`方法，就可以实现正确拷贝。**
 
 ```javascript
 const source = {
@@ -395,7 +400,7 @@ const shallowMerge = (target, source) => Object.defineProperties(
 );
 ```
 
-`Object.getOwnPropertyDescriptors()`方法的另一个用处，是配合`Object.create()`方法，将对象属性克隆到一个新对象。这属于浅拷贝。
+**用法2：`Object.getOwnPropertyDescriptors()`方法的另一个用处，是配合`Object.create()`方法，将对象属性克隆到一个新对象。这属于浅拷贝。**
 
 ```javascript
 const clone = Object.create(Object.getPrototypeOf(obj),
@@ -492,7 +497,7 @@ var obj = Object.create(someOtherObj);
 obj.method = function() { ... };
 ```
 
-该属性没有写入 ES6 的正文，而是写入了附录，原因是`__proto__`前后的双下划线，说明它本质上是一个内部属性，而不是一个正式的对外的 API，只是由于浏览器广泛支持，才被加入了 ES6。标准明确规定，只有浏览器必须部署这个属性，其他运行环境不一定需要部署，而且新的代码最好认为这个属性是不存在的。因此，无论从语义的角度，还是从兼容性的角度，都不要使用这个属性，而是使用下面的`Object.setPrototypeOf()`（写操作）、`Object.getPrototypeOf()`（读操作）、`Object.create()`（生成操作）代替。
+该属性没有写入 ES6 的正文，而是写入了附录，原因是`__proto__`前后的双下划线，说明它本质上是一个内部属性，而不是一个正式的对外的 API，只是由于浏览器广泛支持，才被加入了 ES6。标准明确规定，只有浏览器必须部署这个属性，其他运行环境不一定需要部署，而且新的代码最好认为这个属性是不存在的。因此，无论从语义的角度，还是从兼容性的角度，都**不要使用这个`__proto__`属性，而是使用`Object.setPrototypeOf()`设置原型对象，使用`Object.getPrototypeOf()`读取原型对象，使用`Object.create()`生成继承原型对象的对象。**
 
 实现上，`__proto__`调用的是`Object.prototype.__proto__`，具体实现如下。
 
