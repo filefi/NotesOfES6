@@ -560,9 +560,7 @@ arr2[Symbol.isConcatSpreadable] = false;
 ['a', 'b'].concat(arr2, 'e') // ['a', 'b', ['c','d'], 'e']
 ```
 
-上面代码说明，数组的默认行为是可以展开，`Symbol.isConcatSpreadable`默认等于`undefined`。该属性等于`true`时，也有展开的效果。
-
-类似数组的对象正好相反，默认不展开。它的`Symbol.isConcatSpreadable`属性设为`true`，才可以展开。
+上面代码说明，**`Symbol.isConcatSpreadable`默认等于`undefined`。数组的默认行为是可以展开，该属性等于`true`时，也有展开的效果。类似数组的对象，默认不展开。仅当`Symbol.isConcatSpreadable`属性设为`true`，才可以展开。**
 
 ```javascript
 let obj = {length: 2, 0: 'c', 1: 'd'};
@@ -578,7 +576,7 @@ obj[Symbol.isConcatSpreadable] = true;
 class A1 extends Array {
   constructor(args) {
     super(args);
-    this[Symbol.isConcatSpreadable] = true;
+    this[Symbol.isConcatSpreadable] = true;  // 类A1是可展开的
   }
 }
 class A2 extends Array {
@@ -586,7 +584,7 @@ class A2 extends Array {
     super(args);
   }
   get [Symbol.isConcatSpreadable] () {
-    return false;
+    return false;   // 类A2是不可展开的
   }
 }
 let a1 = new A1();
@@ -671,7 +669,7 @@ new T2(r => r()).then(v => v) instanceof T2 // false
 
 上面代码中，`T2`定义了`Symbol.species`属性，`T1`没有。结果就导致了创建衍生对象时（`then`方法），`T1`调用的是自身的构造方法，而`T2`调用的是`Promise`的构造方法。
 
-总之，`Symbol.species`的作用在于，实例对象在运行过程中，需要再次调用自身的构造函数时，会调用该属性指定的构造函数。它主要的用途是，有些类库是在基类的基础上修改的，那么子类使用继承的方法时，作者可能希望返回基类的实例，而不是子类的实例。
+**总之，`Symbol.species`的作用在于，实例对象在运行过程中，需要再次调用自身的构造函数时，会调用该属性指定的构造函数。它主要的用途是，有些类库是在基类的基础上修改的，那么子类使用继承的方法时，作者可能希望返回基类的实例，而不是子类的实例。**
 
 ### Symbol.match
 
