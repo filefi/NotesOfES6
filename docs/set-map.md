@@ -88,14 +88,23 @@ set.size // 2
 
 上面代码表示，由于两个空对象不相等，所以它们被视为两个值。
 
-### Set 实例的属性和方法
+### Set 实例的属性
 
 Set 结构的实例有以下属性。
 
 - `Set.prototype.constructor`：构造函数，默认就是`Set`函数。
 - `Set.prototype.size`：返回`Set`实例的成员总数。
 
-Set 实例的方法分为两大类：操作方法（用于操作数据）和遍历方法（用于遍历成员）。下面先介绍四个操作方法。
+### Set 实例的操作方法和遍历方法
+
+Set 实例的方法分为2大类：
+
+- 操作方法（用于操作数据）
+- 遍历方法（用于遍历成员）
+
+#### 操作方法
+
+下面先介绍4个操作方法。
 
 - `Set.prototype.add(value)`：添加某个值，返回 Set 结构本身。
 - `Set.prototype.delete(value)`：删除某个值，返回一个布尔值，表示删除是否成功。
@@ -159,7 +168,7 @@ function dedupe(array) {
 dedupe([1, 1, 2, 3]) // [1, 2, 3]
 ```
 
-### 遍历操作
+#### 遍历操作
 
 Set 结构的实例有四个遍历方法，可以用于遍历成员。
 
@@ -306,9 +315,9 @@ set = new Set(Array.from(set, val => val * 2));
 
 ### 含义
 
-WeakSet 结构与 Set 类似，也是不重复的值的集合。但是，它与 Set 有两个区别。
+WeakSet 结构与 Set 类似，也是不重复的值的集合。但是，**它与 Set 有2个区别：**
 
-首先，WeakSet 的成员只能是对象，而不能是其他类型的值。
+- **WeakSet 的成员只能是对象，而不能是其他类型的值。**
 
 ```javascript
 const ws = new WeakSet();
@@ -320,7 +329,7 @@ ws.add(Symbol())
 
 上面代码试图向 WeakSet 添加一个数值和`Symbol`值，结果报错，因为 WeakSet 只能放置对象。
 
-其次，WeakSet 中的对象都是弱引用，即垃圾回收机制不考虑 WeakSet 对该对象的引用，也就是说，如果其他对象都不再引用该对象，那么垃圾回收机制会自动回收该对象所占用的内存，不考虑该对象还存在于 WeakSet 之中。
+- **WeakSet 中的对象都是弱引用，即垃圾回收机制不考虑 WeakSet 对该对象的引用，也就是说，如果其他对象都不再引用该对象，那么垃圾回收机制会自动回收该对象所占用的内存，不考虑该对象还存在于 WeakSet 之中。**
 
 这是因为垃圾回收机制依赖引用计数，如果一个值的引用次数不为`0`，垃圾回收机制就不会释放这块内存。结束使用该值之后，有时会忘记取消引用，导致内存无法释放，进而可能会引发内存泄漏。WeakSet 里面的引用，都不计入垃圾回收机制，所以就不存在这个问题。因此，WeakSet 适合临时存放一组对象，以及存放跟对象绑定的信息。只要这些对象在外部消失，它在 WeakSet 里面的引用就会自动消失。
 
@@ -356,7 +365,7 @@ const ws = new WeakSet(b);
 
 上面代码中，数组`b`的成员不是对象，加入 WeakSet 就会报错。
 
-WeakSet 结构有以下三个方法。
+WeakSet 结构有以下3个方法：
 
 - **WeakSet.prototype.add(value)**：向 WeakSet 实例添加一个新成员。
 - **WeakSet.prototype.delete(value)**：清除 WeakSet 实例的指定成员。
@@ -391,7 +400,9 @@ ws.forEach(function(item){ console.log('WeakSet has ' + item)})
 
 上面代码试图获取`size`和`forEach`属性，结果都不能成功。
 
-WeakSet 不能遍历，是因为成员都是弱引用，随时可能消失，遍历机制无法保证成员的存在，很可能刚刚遍历结束，成员就取不到了。WeakSet 的一个用处，是储存 DOM 节点，而不用担心这些节点从文档移除时，会引发内存泄漏。
+WeakSet 不能遍历，是因为成员都是弱引用，随时可能消失，遍历机制无法保证成员的存在，很可能刚刚遍历结束，成员就取不到了。
+
+**WeakSet 的一个用处，是储存 DOM 节点，而不用担心这些节点从文档移除时，会引发内存泄漏。**
 
 下面是 WeakSet 的另一个例子。
 
@@ -415,7 +426,7 @@ class Foo {
 
 ### 含义和基本用法
 
-JavaScript 的对象（Object），本质上是键值对的集合（Hash 结构），但是传统上只能用字符串当作键。这给它的使用带来了很大的限制。
+**JavaScript 的对象（Object）本质上是键值对的集合（Hash 结构），但是传统上只能用字符串当作键。**这给它的使用带来了很大的限制。
 
 ```javascript
 const data = {};
@@ -427,7 +438,7 @@ data['[object HTMLDivElement]'] // "metadata"
 
 上面代码原意是将一个 DOM 节点作为对象`data`的键，但是由于对象只接受字符串作为键名，所以`element`被自动转为字符串`[object HTMLDivElement]`。
 
-为了解决这个问题，ES6 提供了 Map 数据结构。它类似于对象，也是键值对的集合，但是“键”的范围不限于字符串，各种类型的值（包括对象）都可以当作键。也就是说，Object 结构提供了“字符串—值”的对应，Map 结构提供了“值—值”的对应，是一种更完善的 Hash 结构实现。如果你需要“键值对”的数据结构，Map 比 Object 更合适。
+为了解决这个问题，ES6 提供了 Map 数据结构。**Map类似于对象，也是键值对的集合，但是“键”的范围不限于字符串，各种类型的值（包括对象）都可以当作键。**也就是说，Object 结构提供了“字符串—值”的对应，Map 结构提供了“值—值”的对应，是一种更完善的 Hash 结构实现。如果你需要“键值对”的数据结构，Map 比 Object 更合适。
 
 ```javascript
 const m = new Map();
@@ -513,7 +524,7 @@ new Map().get('asfddfsasadf')
 // undefined
 ```
 
-注意，只有对同一个对象的引用，Map 结构才将其视为同一个键。这一点要非常小心。
+**注意，只有对同一个对象的引用，Map 结构才将其视为同一个键。这一点要非常小心。**
 
 ```javascript
 const map = new Map();
@@ -564,11 +575,11 @@ map.set(NaN, 123);
 map.get(NaN) // 123
 ```
 
-### 实例的属性和操作方法
+### 实例的属性
 
-Map 结构的实例有以下属性和操作方法。
+Map 结构的实例有以下属性：
 
-**（1）size 属性**
+- **size 属性**
 
 `size`属性返回 Map 结构的成员总数。
 
@@ -580,7 +591,9 @@ map.set('bar', false);
 map.size // 2
 ```
 
-**（2）Map.prototype.set(key, value)**
+### 操作方法
+
+**Map.prototype.set(key, value)**
 
 `set`方法设置键名`key`对应的键值为`value`，然后返回整个 Map 结构。如果`key`已经有值，则键值会被更新，否则就新生成该键。
 
@@ -601,7 +614,7 @@ let map = new Map()
   .set(3, 'c');
 ```
 
-**（3）Map.prototype.get(key)**
+**Map.prototype.get(key)**
 
 `get`方法读取`key`对应的键值，如果找不到`key`，返回`undefined`。
 
@@ -614,7 +627,7 @@ m.set(hello, 'Hello ES6!') // 键是函数
 m.get(hello)  // Hello ES6!
 ```
 
-**（4）Map.prototype.has(key)**
+**Map.prototype.has(key)**
 
 `has`方法返回一个布尔值，表示某个键是否在当前 Map 对象之中。
 
@@ -631,7 +644,7 @@ m.has(262)           // true
 m.has(undefined)     // true
 ```
 
-**（5）Map.prototype.delete(key)**
+**Map.prototype.delete(key)**
 
 `delete`方法删除某个键，返回`true`。如果删除失败，返回`false`。
 
@@ -644,7 +657,7 @@ m.delete(undefined)
 m.has(undefined)       // false
 ```
 
-**（6）Map.prototype.clear()**
+**Map.prototype.clear()**
 
 `clear`方法清除所有成员，没有返回值。
 
@@ -660,14 +673,12 @@ map.size // 0
 
 ### 遍历方法
 
-Map 结构原生提供三个遍历器生成函数和一个遍历方法。
+Map 结构原生提供3个遍历器生成函数和1个遍历方法。Map 的遍历顺序就是插入顺序。**
 
 - `Map.prototype.keys()`：返回键名的遍历器。
 - `Map.prototype.values()`：返回键值的遍历器。
 - `Map.prototype.entries()`：返回所有成员的遍历器。
 - `Map.prototype.forEach()`：遍历 Map 的所有成员。
-
-需要特别注意的是，Map 的遍历顺序就是插入顺序。
 
 ```javascript
 const map = new Map([
