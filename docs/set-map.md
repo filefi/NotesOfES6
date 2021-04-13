@@ -1116,7 +1116,7 @@ arr = null
 
 随后，点击 Chrome 浏览器的 Dev Tools 的 Memory 面板中的垃圾桶图标，强制进行垃圾回收：
 
-![](../img/set-map.assets/image-20210413224559988.png)
+![](./img/set-map.assets/image-20210413224559988.png)
 
 回到Dev Tools 的 Console 面板查看效果：
 
