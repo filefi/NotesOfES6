@@ -937,9 +937,9 @@ const wm2 = new WeakMap([[k1, 'foo'], [k2, 'bar']]);
 wm2.get(k2) // "bar"
 ```
 
-`WeakMap`与`Map`的区别有两点。
+**`WeakMap`与`Map`有2个区别：**
 
-首先，`WeakMap`只接受对象作为键名（`null`除外），不接受其他类型的值作为键名。
+- **`WeakMap`只接受对象作为键名，不接受其他类型的值作为键名。**
 
 ```javascript
 const map = new WeakMap();
@@ -953,7 +953,7 @@ map.set(null, 2)
 
 上面代码中，如果将数值`1`和`Symbol`值作为 WeakMap 的键名，都会报错。
 
-其次，`WeakMap`的键名所指向的对象，不计入垃圾回收机制。
+- **`WeakMap`的键名所指向的对象，不计入垃圾回收机制。**
 
 `WeakMap`的设计目的在于，有时我们想在某个对象上面存放一些数据，但是这会形成对于这个对象的引用。请看下面的例子。
 
@@ -996,9 +996,9 @@ wm.get(element) // "some information"
 
 也就是说，上面的 DOM 节点对象的引用计数是`1`，而不是`2`。这时，一旦消除对该节点的引用，它占用的内存就会被垃圾回收机制释放。Weakmap 保存的这个键值对，也会自动消失。
 
-总之，`WeakMap`的专用场合就是，它的键所对应的对象，可能会在将来消失。`WeakMap`结构有助于防止内存泄漏。
+**总之，`WeakMap`的专用场合就是，它的键所对应的对象，可能会在将来消失。`WeakMap`结构有助于防止内存泄漏。**
 
-注意，WeakMap 弱引用的只是键名，而不是键值。键值依然是正常引用。
+**注意，WeakMap 弱引用的只是键名，而不是键值。键值依然是正常引用。**
 
 ```javascript
 const wm = new WeakMap();
@@ -1015,7 +1015,10 @@ wm.get(key)
 
 ### WeakMap 的语法
 
-WeakMap 与 Map 在 API 上的区别主要是两个，一是没有遍历操作（即没有`keys()`、`values()`和`entries()`方法），也没有`size`属性。因为没有办法列出所有键名，某个键名是否存在完全不可预测，跟垃圾回收机制是否运行相关。这一刻可以取到键名，下一刻垃圾回收机制突然运行了，这个键名就没了，为了防止出现不确定性，就统一规定不能取到键名。二是无法清空，即不支持`clear`方法。因此，`WeakMap`只有四个方法可用：`get()`、`set()`、`has()`、`delete()`。
+**WeakMap 与 Map 在 API 上主要有2个区别：**
+
+- 没有遍历操作（即没有`keys()`、`values()`和`entries()`方法），也没有`size`属性。因为没有办法列出所有键名，某个键名是否存在完全不可预测，跟垃圾回收机制是否运行相关。这一刻可以取到键名，下一刻垃圾回收机制突然运行了，这个键名就没了，为了防止出现不确定性，就统一规定不能取到键名。
+- 无法清空，即不支持`clear`方法。因此，`WeakMap`只有4个方法可用：`get()`、`set()`、`has()`、`delete()`。
 
 ```javascript
 const wm = new WeakMap();
@@ -1099,6 +1102,30 @@ undefined
 上面代码中，只要外部的引用消失，WeakMap 内部的引用，就会自动被垃圾回收清除。由此可见，有了 WeakMap 的帮助，解决内存泄漏就会简单很多。
 
 Chrome 浏览器的 Dev Tools 的 Memory 面板，有一个垃圾桶的按钮，可以强制垃圾回收（garbage collect）。这个按钮也能用来观察 WeakMap 里面的引用是否消失。
+
+```js
+let wm = new WeakMap()
+let arr = new Array(5*1024*1024)
+wm.set(arr,1) // WeakMap {Array(5242880) => 1}
+wm.has(arr) // true
+wm.get(arr) // 1
+
+// 将arr的引用指向null
+arr = null
+```
+
+随后，点击 Chrome 浏览器的 Dev Tools 的 Memory 面板中的垃圾桶图标，强制进行垃圾回收：
+
+![](../img/set-map.assets/image-20210413224559988.png)
+
+回到Dev Tools 的 Console 面板查看效果：
+
+```js
+wm.has(arr) // false
+wm.get(arr) // undefined
+```
+
+
 
 ### WeakMap 的用途
 
