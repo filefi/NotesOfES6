@@ -148,7 +148,7 @@ fproxy.foo === "Hello, foo" // true
 
 ### get()
 
-`get`方法用于拦截某个属性的读取操作，可以接受3个参数，依次为
+`get`方法用于拦截某个属性的读取操作，可以接受3个参数，依次为：
 
 - 目标对象
 - 属性名
@@ -177,7 +177,7 @@ proxy.age // 抛出一个错误
 
 上面代码表示，如果访问目标对象不存在的属性，会抛出一个错误。如果没有这个拦截函数，访问不存在的属性，只会返回`undefined`。
 
-`get`方法可以继承。
+**`get`方法可以继承：**
 
 ```javascript
 let proto = new Proxy({}, {
@@ -306,9 +306,9 @@ const d = Object.create(proxy);
 d.a === d // true
 ```
 
-上面代码中，`d`对象本身没有`a`属性，所以读取`d.a`的时候，会去`d`的原型`proxy`对象找。这时，`receiver`就指向`d`，代表原始的读操作所在的那个对象。
+上面代码中，`d`对象本身没有`a`属性，所以读取`d.a`的时候，会去`d`的原型`proxy`对象找。这时，`receiver`就指向`d`，***代表原始的读操作所在的那个对象。***
 
-如果一个属性不可配置（configurable）且不可写（writable），则 Proxy 不能修改该属性，否则通过 Proxy 对象访问该属性会报错。
+**如果一个属性不可配置（configurable）且不可写（writable），则 Proxy 不能修改该属性，否则通过 Proxy 对象访问该属性会报错。**
 
 ```javascript
 const target = Object.defineProperties({}, {
