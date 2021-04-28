@@ -152,7 +152,7 @@ fproxy.foo === "Hello, foo" // true
 
 - 目标对象
 - 属性名
--  proxy 实例本身（可选），严格地说，是操作行为所针对的对象。
+-  实际发生操作行为的那个对象本身（可选）。在没有另一个对象继承Proxy 实例的情况下，通常是Proxy实例对象本身。
 
 `get`方法的用法，上文已经有一个例子，下面是另一个拦截读取操作的例子。
 
@@ -302,7 +302,10 @@ const proxy = new Proxy({}, {
   }
 });
 
+// 对象d继承proxy
 const d = Object.create(proxy);
+
+// 注意到receiver是d本身，而不是proxy
 d.a === d // true
 ```
 
@@ -333,7 +336,12 @@ proxy.foo
 
 ### set()
 
-`set`方法用来拦截某个属性的赋值操作，可以接受四个参数，依次为目标对象、属性名、属性值和 Proxy 实例本身，其中最后一个参数可选。
+`set`方法用来拦截某个属性的赋值操作，可以接受4个参数：
+
+- 目标对象
+- 属性名
+- 属性值
+-  实际发生操作行为的那个对象本身（可选）。在没有另一个对象继承Proxy 实例的情况下，通常是Proxy实例对象本身。
 
 假定`Person`对象有一个`age`属性，该属性应该是一个不大于 200 的整数，那么可以使用`Proxy`保证`age`的属性值符合要求。
 
@@ -361,11 +369,12 @@ person.age = 100;
 person.age // 100
 person.age = 'young' // 报错
 person.age = 300 // 报错
+person['age'] = 400 // 报错
 ```
 
 上面代码中，由于设置了存值函数`set`，任何不符合要求的`age`属性赋值，都会抛出一个错误，这是数据验证的一种实现方法。利用`set`方法，还可以数据绑定，即每当对象发生变化时，会自动更新 DOM。
 
-有时，我们会在对象上面设置内部属性，属性名的第一个字符使用下划线开头，表示这些属性不应该被外部使用。结合`get`和`set`方法，就可以做到防止这些内部属性被外部读写。
+**有时，我们会在对象上面设置内部属性，属性名的第一个字符使用下划线开头，表示这些属性不应该被外部使用。结合`get`和`set`方法，就可以做到防止这些内部属性被外部读写。**
 
 ```javascript
 const handler = {
@@ -379,11 +388,13 @@ const handler = {
     return true;
   }
 };
+
 function invariant (key, action) {
   if (key[0] === '_') {
     throw new Error(`Invalid attempt to ${action} private "${key}" property`);
   }
 }
+
 const target = {};
 const proxy = new Proxy(target, handler);
 proxy._prop
@@ -394,7 +405,7 @@ proxy._prop = 'c'
 
 上面代码中，只要读写的属性名的第一个字符是下划线，一律抛错，从而达到禁止读写内部属性的目的。
 
-下面是`set`方法第四个参数的例子。
+下面是`set`方法第4个参数的例子。
 
 ```javascript
 const handler = {
@@ -407,7 +418,7 @@ proxy.foo = 'bar';
 proxy.foo === proxy // true
 ```
 
-上面代码中，`set`方法的第四个参数`receiver`，指的是原始的操作行为所在的那个对象，一般情况下是`proxy`实例本身，请看下面的例子。
+上面代码中，`set`方法的第4个参数`receiver`，指的是***实际发生操作行为的那个对象本身。在没有另一个对象继承`proxy`实例的情况下，这个参数通常是`proxy`实例本身。***请看下面的例子。
 
 ```javascript
 const handler = {
@@ -417,15 +428,17 @@ const handler = {
 };
 const proxy = new Proxy({}, handler);
 const myObj = {};
+// myObj 的 [[Prototype]] 指向 proxy，即 myObj继承proxy
 Object.setPrototypeOf(myObj, proxy);
 
 myObj.foo = 'bar';
+// 注意到返回的receiver是myObj本身，而不是proxy
 myObj.foo === myObj // true
 ```
 
-上面代码中，设置`myObj.foo`属性的值时，`myObj`并没有`foo`属性，因此引擎会到`myObj`的原型链去找`foo`属性。`myObj`的原型对象`proxy`是一个 Proxy 实例，设置它的`foo`属性会触发`set`方法。这时，第四个参数`receiver`就指向原始赋值行为所在的对象`myObj`。
+上面代码中，设置`myObj.foo`属性的值时，`myObj`并没有`foo`属性，因此引擎会到`myObj`的原型链去找`foo`属性。`myObj`的原型对象`proxy`是一个 Proxy 实例，设置它的`foo`属性会触发`set`方法。这时，第4个参数`receiver`就指向原始赋值行为所在的对象`myObj`。
 
-注意，如果目标对象自身的某个属性，不可写且不可配置，那么`set`方法将不起作用。
+**注意，如果目标对象自身的某个属性，不可写且不可配置，那么`set`方法将不起作用。**
 
 ```javascript
 const obj = {};
@@ -447,7 +460,7 @@ proxy.foo // "bar"
 
 上面代码中，`obj.foo`属性不可写，Proxy 对这个属性的`set`代理将不会生效。
 
-注意，严格模式下，`set`代理如果没有返回`true`，就会报错。
+**注意，严格模式下，`set`代理如果没有返回`true`，就会报错。**
 
 ```javascript
 'use strict';
@@ -469,7 +482,11 @@ proxy.foo = 'bar';
 
 `apply`方法拦截函数的调用、`call`和`apply`操作。
 
-`apply`方法可以接受三个参数，分别是目标对象、目标对象的上下文对象（`this`）和目标对象的参数数组。
+`apply`方法可以接受3个参数：
+
+- 目标对象
+- 目标对象的上下文对象（`this`）
+- 目标对象的参数数组
 
 ```javascript
 var handler = {
