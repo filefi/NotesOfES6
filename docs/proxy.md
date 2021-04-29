@@ -711,6 +711,7 @@ var handler = {
     return true;
   }
 };
+
 function invariant (key, action) {
   if (key[0] === '_') {
     throw new Error(`Invalid attempt to ${action} private "${key}" property`);
@@ -759,8 +760,10 @@ var handler = {
     return Object.getOwnPropertyDescriptor(target, key);
   }
 };
+
 var target = { _foo: 'bar', baz: 'tar' };
 var proxy = new Proxy(target, handler);
+
 Object.getOwnPropertyDescriptor(proxy, 'wat')
 // undefined
 Object.getOwnPropertyDescriptor(proxy, '_foo')
@@ -773,7 +776,7 @@ Object.getOwnPropertyDescriptor(proxy, 'baz')
 
 ### getPrototypeOf()
 
-`getPrototypeOf()`方法主要用来拦截获取对象原型。具体来说，拦截下面这些操作。
+`getPrototypeOf()`方法主要用来拦截获取对象原型。具体来说，拦截下面这些操作：
 
 - `Object.prototype.__proto__`
 - `Object.prototype.isPrototypeOf()`
@@ -816,7 +819,7 @@ Object.isExtensible(p)
 
 上面代码设置了`isExtensible()`方法，在调用`Object.isExtensible`时会输出`called`。
 
-注意，该方法只能返回布尔值，否则返回值会被自动转为布尔值。
+**注意，该方法只能返回布尔值，否则返回值会被自动转为布尔值。**
 
 这个方法有一个强限制，它的返回值必须与目标对象的`isExtensible`属性保持一致，否则就会抛出错误。
 
@@ -839,7 +842,7 @@ Object.isExtensible(p)
 
 ### ownKeys()
 
-`ownKeys()`方法用来拦截对象自身属性的读取操作。具体来说，拦截以下操作。
+`ownKeys()`方法用来拦截对象自身属性的读取操作。具体来说，拦截以下操作：
 
 - `Object.getOwnPropertyNames()`
 - `Object.getOwnPropertySymbols()`
@@ -869,7 +872,7 @@ Object.keys(proxy)
 
 上面代码拦截了对于`target`对象的`Object.keys()`操作，只返回`a`、`b`、`c`三个属性之中的`a`属性。
 
-下面的例子是拦截第一个字符为下划线的属性名。
+下面的例子是拦截第一个字符不为下划线的属性名：
 
 ```javascript
 let target = {
@@ -891,7 +894,7 @@ for (let key of Object.keys(proxy)) {
 // "baz"
 ```
 
-注意，使用`Object.keys()`方法时，有三类属性会被`ownKeys()`方法自动过滤，不会返回。
+注意，使用`Object.keys()`方法时，以下3类属性会被`ownKeys()`方法自动过滤，不会返回：
 
 - 目标对象上不存在的属性
 - 属性名为 Symbol 值
@@ -973,7 +976,7 @@ Object.getOwnPropertyNames(p)
 
 上面代码中，`ownKeys()`方法虽然返回一个数组，但是每一个数组成员都不是字符串或 Symbol 值，因此就报错了。
 
-如果目标对象自身包含不可配置的属性，则该属性必须被`ownKeys()`方法返回，否则报错。
+**如果目标对象自身包含不可配置的属性，则该属性必须被`ownKeys()`方法返回，否则报错。**
 
 ```javascript
 var obj = {};
@@ -995,7 +998,7 @@ Object.getOwnPropertyNames(p)
 
 上面代码中，`obj`对象的`a`属性是不可配置的，这时`ownKeys()`方法返回的数组之中，必须包含`a`，否则会报错。
 
-另外，如果目标对象是不可扩展的（non-extensible），这时`ownKeys()`方法返回的数组之中，必须包含原对象的所有属性，且不能包含多余的属性，否则报错。
+**另外，如果目标对象是不可扩展的（non-extensible），这时`ownKeys()`方法返回的数组之中，必须包含原对象的所有属性，且不能包含多余的属性，否则报错。**
 
 ```javascript
 var obj = {
@@ -1072,7 +1075,7 @@ Object.setPrototypeOf(proxy, proto);
 
 上面代码中，只要修改`target`的原型对象，就会报错。
 
-注意，该方法只能返回布尔值，否则会被自动转为布尔值。另外，如果目标对象不可扩展（non-extensible），`setPrototypeOf()`方法不得改变目标对象的原型。
+**注意，该方法只能返回布尔值，否则会被自动转为布尔值。另外，如果目标对象不可扩展（non-extensible），`setPrototypeOf()`方法不得改变目标对象的原型。**
 
 ## Proxy.revocable()
 
