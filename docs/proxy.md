@@ -1169,7 +1169,7 @@ const proxy = new Proxy(target, handler);
 proxy.getDate() // 1
 ```
 
-另外，Proxy 拦截函数内部的`this`，指向的是`handler`对象。
+**另外，Proxy 拦截函数内部的`this`，指向的是`handler`对象。**
 
 ```javascript
 const handler = {

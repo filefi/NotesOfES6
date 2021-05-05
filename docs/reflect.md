@@ -2,7 +2,7 @@
 
 ## 概述
 
-`Reflect`对象与`Proxy`对象一样，也是 ES6 为了操作对象而提供的新 API。`Reflect`对象的设计目的有这样几个。
+`Reflect`对象与`Proxy`对象一样，也是 ES6 为了操作对象而提供的新 API。**`Reflect`对象的设计目的：**
 
 （1） 将`Object`对象的一些明显属于语言内部的方法（比如`Object.defineProperty`），放到`Reflect`对象上。现阶段，某些方法同时在`Object`和`Reflect`对象上部署，未来的新方法将只部署在`Reflect`对象上。也就是说，从`Reflect`对象上可以拿到语言内部的方法。
 
@@ -84,21 +84,21 @@ Reflect.apply(Math.floor, undefined, [1.75]) // 1
 
 ## 静态方法
 
-`Reflect`对象一共有 13 个静态方法。
+**`Reflect`对象一共有 13 个静态方法：**
 
-- Reflect.apply(target, thisArg, args)
-- Reflect.construct(target, args)
-- Reflect.get(target, name, receiver)
-- Reflect.set(target, name, value, receiver)
-- Reflect.defineProperty(target, name, desc)
-- Reflect.deleteProperty(target, name)
-- Reflect.has(target, name)
-- Reflect.ownKeys(target)
-- Reflect.isExtensible(target)
-- Reflect.preventExtensions(target)
-- Reflect.getOwnPropertyDescriptor(target, name)
-- Reflect.getPrototypeOf(target)
-- Reflect.setPrototypeOf(target, prototype)
+- `Reflect.apply(target, thisArg, args)`
+- `Reflect.construct(target, args)`
+- `Reflect.get(target, name, receiver)`
+- `Reflect.set(target, name, value, receiver)`
+- `Reflect.defineProperty(target, name, desc)`
+- `Reflect.deleteProperty(target, name)`
+- `Reflect.has(target, name)`
+- `Reflect.ownKeys(target)`
+- `Reflect.isExtensible(target)`
+- `Reflect.preventExtensions(target)`
+- `Reflect.getOwnPropertyDescriptor(target, name)`
+- `Reflect.getPrototypeOf(target)`
+- `Reflect.setPrototypeOf(target, prototype)`
 
 上面这些方法的作用，大部分与`Object`对象的同名方法的作用都是相同的，而且它与`Proxy`对象的方法是一一对应的。下面是对它们的解释。
 
@@ -382,7 +382,7 @@ const type = Reflect.apply(Object.prototype.toString, youngest, []);
 
 ### Reflect.defineProperty(target, propertyKey, attributes)
 
-`Reflect.defineProperty`方法基本等同于`Object.defineProperty`，用来为对象定义属性。未来，后者会被逐渐废除，请从现在开始就使用`Reflect.defineProperty`代替它。
+`Reflect.defineProperty`方法被设计来替代`Object.defineProperty`，用来为对象定义属性。未来，`Object.defineProperty`会被逐渐废除，请从现在开始就使用`Reflect.defineProperty`代替它。
 
 ```javascript
 function MyDate() {
