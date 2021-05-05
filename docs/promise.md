@@ -300,7 +300,7 @@ promise.catch(function(error) {
 // Error: test
 ```
 
-上面代码中，`promise`抛出一个错误，就被`catch()`方法指定的回调函数捕获。注意，上面的写法与下面两种写法是等价的。
+上面代码中，`promise`抛出一个错误，就被`catch()`方法指定的回调函数捕获。**注意，上面的写法与下面2种写法是等价的：**
 
 ```javascript
 // 写法一
@@ -353,9 +353,9 @@ getJSON('/post/1.json').then(function(post) {
 });
 ```
 
-上面代码中，一共有三个 Promise 对象：一个由`getJSON()`产生，两个由`then()`产生。它们之中任何一个抛出的错误，都会被最后一个`catch()`捕获。
+上面代码中，一共有3个 Promise 对象：一个由`getJSON()`产生，两个由`then()`产生。它们之中任何一个抛出的错误，都会被最后一个`catch()`捕获。
 
-一般来说，不要在`then()`方法里面定义 Reject 状态的回调函数（即`then`的第二个参数），总是使用`catch`方法。
+**一般来说，不要在`then()`方法里面定义 Reject 状态的回调函数（即`then`的第二个参数），总是使用`catch`方法。**
 
 ```javascript
 // bad
@@ -378,7 +378,7 @@ promise
 
 上面代码中，第二种写法要好于第一种写法，理由是第二种写法可以捕获前面`then`方法执行中的错误，也更接近同步的写法（`try/catch`）。因此，建议总是使用`catch()`方法，而不使用`then()`方法的第二个参数。
 
-跟传统的`try/catch`代码块不同的是，如果没有使用`catch()`方法指定错误处理的回调函数，Promise 对象抛出的错误不会传递到外层代码，即不会有任何反应。
+**跟传统的`try/catch`代码块不同的是，如果没有使用`catch()`方法指定错误处理的回调函数，Promise 对象抛出的错误不会传递到外层代码，即不会有任何反应。**
 
 ```javascript
 const someAsyncThing = function() {
@@ -397,7 +397,7 @@ setTimeout(() => { console.log(123) }, 2000);
 // 123
 ```
 
-上面代码中，`someAsyncThing()`函数产生的 Promise 对象，内部有语法错误。浏览器运行到这一行，会打印出错误提示`ReferenceError: x is not defined`，但是不会退出进程、终止脚本执行，2 秒之后还是会输出`123`。这就是说，Promise 内部的错误不会影响到 Promise 外部的代码，通俗的说法就是“Promise 会吃掉错误”。
+上面代码中，`someAsyncThing()`函数产生的 Promise 对象，内部有语法错误。浏览器运行到这一行，会打印出错误提示`ReferenceError: x is not defined`，但是不会退出进程、终止脚本执行，2 秒之后还是会输出`123`。**这就是说，Promise 内部的错误不会影响到 Promise 外部的代码，通俗的说法就是“Promise 会吃掉错误”。**
 
 这个脚本放在服务器执行，退出码就是`0`（即表示执行成功）。不过，Node.js 有一个`unhandledRejection`事件，专门监听未捕获的`reject`错误，上面的脚本会触发这个事件的监听函数，可以在监听函数里面抛出错误。
 
@@ -409,7 +409,7 @@ process.on('unhandledRejection', function (err, p) {
 
 上面代码中，`unhandledRejection`事件的监听函数有两个参数，第一个是错误对象，第二个是报错的 Promise 实例，它可以用来了解发生错误的环境信息。
 
-注意，Node 有计划在未来废除`unhandledRejection`事件。如果 Promise 内部有未捕获的错误，会直接终止进程，并且进程的退出码不为 0。
+> 注意，Node 有计划在未来废除`unhandledRejection`事件。如果 Promise 内部有未捕获的错误，会直接终止进程，并且进程的退出码不为 0。
 
 再看下面的例子。
 
@@ -423,9 +423,9 @@ promise.then(function (value) { console.log(value) });
 // Uncaught Error: test
 ```
 
-上面代码中，Promise 指定在下一轮“事件循环”再抛出错误。到了那个时候，Promise 的运行已经结束了，所以这个错误是在 Promise 函数体外抛出的，会冒泡到最外层，成了未捕获的错误。
+**上面代码中，Promise 指定在下一轮“事件循环”再抛出错误。到了那个时候，Promise 的运行已经结束了，所以这个错误是在 Promise 函数体外抛出的，会冒泡到最外层，成了未捕获的错误。**
 
-一般总是建议，Promise 对象后面要跟`catch()`方法，这样可以处理 Promise 内部发生的错误。`catch()`方法返回的还是一个 Promise 对象，因此后面还可以接着调用`then()`方法。
+**一般总是建议，Promise 对象后面要跟`catch()`方法，这样可以处理 Promise 内部发生的错误。`catch()`方法返回的还是一个 Promise 对象，因此后面还可以接着调用`then()`方法。**
 
 ```javascript
 const someAsyncThing = function() {
@@ -524,7 +524,7 @@ server.listen(port)
   .finally(server.stop);
 ```
 
-`finally`方法的回调函数不接受任何参数，这意味着没有办法知道，前面的 Promise 状态到底是`fulfilled`还是`rejected`。这表明，`finally`方法里面的操作，应该是与状态无关的，不依赖于 Promise 的执行结果。
+`finally`方法的回调函数不接受任何参数，这意味着没有办法知道，前面的 Promise 状态到底是`fulfilled`还是`rejected`。这表明，**`finally`方法里面的操作，应该是与状态无关的，不依赖于 Promise 的执行结果。**
 
 `finally`本质上是`then`方法的特例。
 
@@ -586,15 +586,17 @@ Promise.reject(3).finally(() => {})
 
 ```javascript
 const p = Promise.all([p1, p2, p3]);
+p
+.then(result => console.log( result instanceof Array ))  // true
+.catch(error => console.log(error));
 ```
 
 上面代码中，`Promise.all()`方法接受一个数组作为参数，`p1`、`p2`、`p3`都是 Promise 实例，如果不是，就会先调用下面讲到的`Promise.resolve`方法，将参数转为 Promise 实例，再进一步处理。另外，`Promise.all()`方法的参数可以不是数组，但必须具有 Iterator 接口，且返回的每个成员都是 Promise 实例。
 
-`p`的状态由`p1`、`p2`、`p3`决定，分成两种情况。
+`p`的状态由`p1`、`p2`、`p3`决定，分成2种情况：
 
-（1）只有`p1`、`p2`、`p3`的状态都变成`fulfilled`，`p`的状态才会变成`fulfilled`，此时`p1`、`p2`、`p3`的返回值组成一个数组，传递给`p`的回调函数。
-
-（2）只要`p1`、`p2`、`p3`之中有一个被`rejected`，`p`的状态就变成`rejected`，此时第一个被`reject`的实例的返回值，会传递给`p`的回调函数。
+- 只有`p1`、`p2`、`p3`的状态都变成`fulfilled`，`p`的状态才会变成`fulfilled`，*此时**`p1`、`p2`、`p3`的返回值组成一个数组**，传递给`p`的回调函数。*
+- 只要`p1`、`p2`、`p3`之中有一个被`rejected`，`p`的状态就变成`rejected`，*此时**第一个被`reject`的实例的返回值**，会传递给`p`的回调函数。*
 
 下面是一个具体的例子。
 
@@ -633,7 +635,30 @@ Promise.all([
 
 上面代码中，`booksPromise`和`userPromise`是两个异步操作，只有等到它们的结果都返回了，才会触发`pickTopRecommendations`这个回调函数。
 
-注意，如果作为参数的 Promise 实例，自己定义了`catch`方法，那么它一旦被`rejected`，并不会触发`Promise.all()`的`catch`方法。
+**`Promise.all`会将传递给它的所有Promise实例的返回值，以数组的形式返回给then的回调函数，可以看到下面返回给then方法回调函数的参数其实是一个数组：**
+
+```js
+const p1 = new Promise((resolve, reject) => {
+  resolve('hello');
+})
+
+const p2 = new Promise((resolve, reject) => {
+  resolve('world');
+})
+
+// Promise.all会将传递给它的所有Promise实例的返回值，以数组的形式返回给then的回调函数；
+//可以看到下面返回给then方法回调函数的result参数其实是一个数组；
+Promise.all([p1, p2])
+.then(result => console.log( result instanceof Array)) // true
+.catch(e => console.log(e));
+
+//可以使用数组结构赋值的方式拿到result数组中的两个元素arg1和arg2，并将它们输出；
+Promise.all([p1, p2])
+.then(([arg1, arg2]) => console.log(arg1, arg2)) // hello world
+.catch(e => console.log(e));
+```
+
+**注意，如果作为参数的 Promise 实例，定义了 *它自己的`catch`方法* ，那么它一旦被`rejected`，并不会触发`Promise.all()`的`catch`方法。**
 
 ```javascript
 const p1 = new Promise((resolve, reject) => {
@@ -646,15 +671,15 @@ const p2 = new Promise((resolve, reject) => {
   throw new Error('报错了');
 })
 .then(result => result)
-.catch(e => e);
+.catch(e => e);  // p2中的异常被它自己的catch方法捕获;
 
+// p2中的异常被它自己的catch方法捕获，p1和p2都会resolved，因此Promise.all()的then方法指定的回调函数会被执行;
 Promise.all([p1, p2])
-.then(result => console.log(result))
+.then(result => console.log(result))  // ["hello", Error: 报错了]
 .catch(e => console.log(e));
-// ["hello", Error: 报错了]
 ```
 
-上面代码中，`p1`会`resolved`，`p2`首先会`rejected`，但是`p2`有自己的`catch`方法，该方法返回的是一个新的 Promise 实例，`p2`指向的实际上是这个实例。该实例执行完`catch`方法后，也会变成`resolved`，导致`Promise.all()`方法参数里面的两个实例都会`resolved`，因此会调用`then`方法指定的回调函数，而不会调用`catch`方法指定的回调函数。
+上面代码中，`p1`会`resolved`，`p2`首先会`rejected`，但是`p2`有自己的`catch`方法，该方法返回的是一个新的 Promise 实例，`p2`指向的实际上是这个实例。该实例执行完`catch`方法后，也会变成`resolved`，导致`Promise.all()`方法参数里面的两个实例都会`resolved`，因此会调用`Promise.all()`的`then`方法指定的回调函数，而不会调用`Promise.all()`的`catch`方法指定的回调函数。
 
 如果`p2`没有自己的`catch`方法，就会调用`Promise.all()`的`catch`方法。
 
@@ -669,10 +694,10 @@ const p2 = new Promise((resolve, reject) => {
 })
 .then(result => result);
 
+// p2中的异常没有被捕获，p2会rejected，因此Promise.all()的catch方法指定的回调函数会被执行，并捕获到该异常；
 Promise.all([p1, p2])
 .then(result => console.log(result))
-.catch(e => console.log(e));
-// Error: 报错了
+.catch(e => console.log(e));  // Error: 报错了
 ```
 
 ## Promise.race()
