@@ -710,7 +710,7 @@ Promise.all([p1, p2])
 
 ## Promise.race()
 
-**`Promise.race()`方法同样是将多个 Promise 实例，包装成一个新的 Promise 实例。**
+`Promise.race()`方法同样是将多个 Promise 实例，包装成一个新的 Promise 实例。
 
 ```javascript
 const p = Promise.race([p1, p2, p3]);
@@ -810,9 +810,9 @@ try {
 
 ## Promise.any()
 
-ES2021 引入了[`Promise.any()`方法](https://github.com/tc39/proposal-promise-any)。该方法接受一组 Promise 实例作为参数，包装成一个新的 Promise 实例返回。只要参数实例有一个变成`fulfilled`状态，包装实例就会变成`fulfilled`状态；如果所有参数实例都变成`rejected`状态，包装实例就会变成`rejected`状态。
+ES2021 引入了[`Promise.any()`方法](https://github.com/tc39/proposal-promise-any)。该方法接受一组 Promise 实例作为参数，包装成一个新的 Promise 实例返回。**只要参数实例有一个变成`fulfilled`状态，包装实例就会变成`fulfilled`状态；如果所有参数实例都变成`rejected`状态，包装实例就会变成`rejected`状态。**
 
-`Promise.any()`跟`Promise.race()`方法很像，只有一点不同，就是不会因为某个 Promise 变成`rejected`状态而结束。
+**`Promise.any()`跟`Promise.race()`方法很像，只有一点不同，就是不会因为某个 Promise 变成`rejected`状态而结束。**
 
 ```javascript
 const promises = [
@@ -820,6 +820,7 @@ const promises = [
   fetch('/endpoint-b').then(() => 'b'),
   fetch('/endpoint-c').then(() => 'c'),
 ];
+
 try {
   const first = await Promise.any(promises);
   console.log(first);
@@ -828,9 +829,9 @@ try {
 }
 ```
 
-上面代码中，`Promise.any()`方法的参数数组包含三个 Promise 操作。其中只要有一个变成`fulfilled`，`Promise.any()`返回的 Promise 对象就变成`fulfilled`。如果所有三个操作都变成`rejected`，那么`await`命令就会抛出错误。
+*上面代码中，`Promise.any()`方法的参数数组包含三个 Promise 操作。其中只要有一个变成`fulfilled`，`Promise.any()`返回的 Promise 对象就变成`fulfilled`。如果所有三个操作都变成`rejected`，那么`await`命令就会抛出错误。*
 
-`Promise.any()`抛出的错误，不是一个一般的错误，而是一个 AggregateError 实例。它相当于一个数组，每个成员对应一个被`rejected`的操作所抛出的错误。下面是 AggregateError 的实现示例。
+**`Promise.any()`抛出的错误，不是一个一般的错误，而是一个 `AggregateError` 实例。它相当于一个数组，每个成员对应一个被`rejected`的操作所抛出的错误。**下面是 `AggregateError` 的实现示例。
 
 ```javascript
 new AggregateError() extends Array -> AggregateError
@@ -841,7 +842,7 @@ err.push(new Error("second error"));
 throw err;
 ```
 
-捕捉错误时，如果不用`try...catch`结构和 await 命令，可以像下面这样写。
+**捕捉错误时，如果不用`try...catch`结构和 await 命令，可以像下面这样写：**
 
 ```javascript
 Promise.any(promises).then(
@@ -880,7 +881,7 @@ const jsPromise = Promise.resolve($.ajax('/whatever.json'));
 
 上面代码将 jQuery 生成的`deferred`对象，转为一个新的 Promise 对象。
 
-`Promise.resolve()`等价于下面的写法。
+`Promise.resolve()`等价于下面的写法：
 
 ```javascript
 Promise.resolve('foo')
@@ -888,13 +889,11 @@ Promise.resolve('foo')
 new Promise(resolve => resolve('foo'))
 ```
 
-`Promise.resolve()`方法的参数分成四种情况。
+**`Promise.resolve()`方法的参数分成4种情况：**
 
-**（1）参数是一个 Promise 实例**
+- **(1) 参数是一个 Promise 实例：**如果参数是 Promise 实例，那么`Promise.resolve`将不做任何修改、原封不动地返回这个实例。
 
-如果参数是 Promise 实例，那么`Promise.resolve`将不做任何修改、原封不动地返回这个实例。
-
-**（2）参数是一个`thenable`对象**
+- **(2) 参数是一个`thenable`对象：**
 
 `thenable`对象指的是具有`then`方法的对象，比如下面这个对象。
 
@@ -915,7 +914,7 @@ let thenable = {
   }
 };
 
-let p1 = Promise.resolve(thenable);
+let p1 = Promise.resolve(thenable); //thenable被转换为Promise对象，其then方法立即被执行，p1状态变为fullfilled
 p1.then(function (value) {
   console.log(value);  // 42
 });
@@ -923,9 +922,9 @@ p1.then(function (value) {
 
 上面代码中，`thenable`对象的`then()`方法执行后，对象`p1`的状态就变为`resolved`，从而立即执行最后那个`then()`方法指定的回调函数，输出42。
 
-**（3）参数不是具有`then()`方法的对象，或根本就不是对象**
+- **(3) 参数不是具有`then()`方法的对象，或根本就不是对象：**
 
-如果参数是一个原始值，或者是一个不具有`then()`方法的对象，则`Promise.resolve()`方法返回一个新的 Promise 对象，状态为`resolved`。
+如果参数是一个原始值，或者是一个不具有`then()`方法的对象，则`Promise.resolve()`方法返回一个新的 Promise 对象，==*状态为`resolved`*==。
 
 ```javascript
 const p = Promise.resolve('Hello');
@@ -938,9 +937,9 @@ p.then(function (s) {
 
 上面代码生成一个新的 Promise 对象的实例`p`。由于字符串`Hello`不属于异步操作（判断方法是字符串对象不具有 then 方法），返回 Promise 实例的状态从一生成就是`resolved`，所以回调函数会立即执行。`Promise.resolve()`方法的参数，会同时传给回调函数。
 
-**（4）不带有任何参数**
+- **(4) 不带有任何参数**
 
-`Promise.resolve()`方法允许调用时不带参数，直接返回一个`resolved`状态的 Promise 对象。
+`Promise.resolve()`方法允许调用时不带参数，直接返回*一个==`resolved`状态==的 Promise 对象*。
 
 所以，如果希望得到一个 Promise 对象，比较方便的方法就是直接调用`Promise.resolve()`方法。
 
@@ -954,7 +953,7 @@ p.then(function () {
 
 上面代码的变量`p`就是一个 Promise 对象。
 
-需要注意的是，立即`resolve()`的 Promise 对象，是在本轮“事件循环”（event loop）的结束时执行，而不是在下一轮“事件循环”的开始时。
+==**需要注意的是，立即`resolve()`的 Promise 对象，是在本轮“事件循环”（event loop）的结束时执行，而不是在下一轮“事件循环”的开始时。**==
 
 ```javascript
 setTimeout(function () {
@@ -972,11 +971,11 @@ console.log('one');
 // three
 ```
 
-上面代码中，`setTimeout(fn, 0)`在下一轮“事件循环”开始时执行，`Promise.resolve()`在本轮“事件循环”结束时执行，`console.log('one')`则是立即执行，因此最先输出。
+*上面代码中，`setTimeout(fn, 0)`在下一轮 “事件循环” 开始时执行，`Promise.resolve()`在本轮 “事件循环” 结束时执行，`console.log('one')`则是立即执行，因此最先输出。*
 
 ## Promise.reject()
 
-`Promise.reject(reason)`方法也会返回一个新的 Promise 实例，该实例的状态为`rejected`。
+`Promise.reject(reason)`方法也会返回*一个新的 Promise 实例，该实例的 ==状态为`rejected`==*。
 
 ```javascript
 const p = Promise.reject('出错了');
@@ -984,9 +983,8 @@ const p = Promise.reject('出错了');
 const p = new Promise((resolve, reject) => reject('出错了'))
 
 p.then(null, function (s) {
-  console.log(s)
+  console.log(s) // 出错了
 });
-// 出错了
 ```
 
 上面代码生成一个 Promise 对象的实例`p`，状态为`rejected`，回调函数会立即执行。
@@ -996,9 +994,8 @@ p.then(null, function (s) {
 ```javascript
 Promise.reject('出错了')
 .catch(e => {
-  console.log(e === '出错了')
+  console.log(e === '出错了') // true
 })
-// true
 ```
 
 上面代码中，`Promise.reject()`方法的参数是一个字符串，后面`catch()`方法的参数`e`就是这个字符串。
@@ -1069,7 +1066,7 @@ run(g);
 Promise.resolve().then(f)
 ```
 
-上面的写法有一个缺点，就是如果`f`是同步函数，那么它会在本轮事件循环的末尾执行。
+**上面的写法有一个缺点，就是如果`f`是同步函数，那么它会在本轮事件循环的末尾执行。**
 
 ```javascript
 const f = () => console.log('now');
@@ -1079,9 +1076,11 @@ console.log('next');
 // now
 ```
 
-上面代码中，函数`f`是同步的，但是用 Promise 包装了以后，就变成异步执行了。
+*上面代码中，函数`f`是同步的，但是用 Promise 包装了以后，就变成异步执行了。*
 
-那么有没有一种方法，让同步函数同步执行，异步函数异步执行，并且让它们具有统一的 API 呢？回答是可以的，并且还有两种写法。第一种写法是用`async`函数来写。
+**那么有没有一种方法，让同步函数同步执行，异步函数异步执行，并且让它们具有统一的 API 呢？回答是可以的，并且还有2种写法：**
+
+- **第1种写法是用`async`函数来写：**
 
 ```javascript
 const f = () => console.log('now');
@@ -1091,7 +1090,7 @@ console.log('next');
 // next
 ```
 
-上面代码中，第二行是一个立即执行的匿名函数，会立即执行里面的`async`函数，因此如果`f`是同步的，就会得到同步的结果；如果`f`是异步的，就可以用`then`指定下一步，就像下面的写法。
+上面代码中，第二行是一个立即执行的匿名函数，会立即执行里面的`async`函数，因此如果`f`是同步的，就会得到同步的结果；如果`f`是异步的，就可以用`then`指定下一步，就像下面的写法：
 
 ```javascript
 (async () => f())()
@@ -1106,7 +1105,7 @@ console.log('next');
 .catch(...)
 ```
 
-第二种写法是使用`new Promise()`。
+- **第2种写法是使用`new Promise()`：**
 
 ```javascript
 const f = () => console.log('now');
