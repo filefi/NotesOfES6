@@ -272,7 +272,7 @@ b.next(13) // { value:42, done:true }
 
 如果向`next`方法提供参数，返回结果就完全不一样了。上面代码第一次调用`b`的`next`方法时，返回`x+1`的值`6`；第二次调用`next`方法，将上一次`yield`表达式的值设为`12`，因此`y`等于`24`，返回`y / 3`的值`8`；第三次调用`next`方法，将上一次`yield`表达式的值设为`13`，因此`z`等于`13`，这时`x`等于`5`，`y`等于`24`，所以`return`语句的值等于`42`。
 
-**==注意，由于`next`方法的参数表示上一个`yield`表达式的返回值，所以在第一次使用`next`方法时，传递参数是无效的。==V8 引擎直接忽略第一次使用`next`方法时的参数，只有从第二次使用`next`方法开始，参数才是有效的。从语义上讲，第一个`next`方法用来启动遍历器对象，所以不用带有参数。**
+** *注意，由于`next`方法的参数表示上一个`yield`表达式的返回值，所以在第一次使用`next`方法时，传递参数是无效的。* V8 引擎直接忽略第一次使用`next`方法时的参数，只有从第二次使用`next`方法开始，参数才是有效的。从语义上讲，第一个`next`方法用来启动遍历器对象，所以不用带有参数。**
 
 再看一个通过`next`方法的参数，向 Generator 函数内部输入值的例子。
 
@@ -337,7 +337,7 @@ for (let v of foo()) {
 // 1 2 3 4 5
 ```
 
-上面代码使用`for...of`循环，依次显示 5 个`yield`表达式的值。这里需要注意，一旦`next`方法的返回对象的`done`属性为`true`，`for...of`循环就会中止，且不包含该返回对象，所以上面代码的`return`语句返回的`6`，不包括在`for...of`循环之中。
+上面代码使用`for...of`循环，依次显示 5 个`yield`表达式的值。这里需要**注意，一旦`next`方法的返回对象的`done`属性为`true`，`for...of`循环就会中止，且不包含该返回对象**，所以上面代码的`return`语句返回的`6`，不包括在`for...of`循环之中。
 
 下面是一个利用 Generator 函数和`for...of`循环，实现斐波那契数列的例子。
 
@@ -378,7 +378,9 @@ for (let [key, value] of objectEntries(jane)) {
 // last: Doe
 ```
 
-上面代码中，对象`jane`原生不具备 Iterator 接口，无法用`for...of`遍历。这时，我们通过 Generator 函数`objectEntries`为它加上遍历器接口，就可以用`for...of`遍历了。加上遍历器接口的另一种写法是，将 Generator 函数加到对象的`Symbol.iterator`属性上面。
+上面代码中，对象`jane`原生不具备 Iterator 接口，无法用`for...of`遍历。这时，我们通过 Generator 函数`objectEntries`为它加上遍历器接口，就可以用`for...of`遍历了。
+
+为原生JS对象添加遍历器接口的另一种写法是，将 Generator 函数加到对象的`Symbol.iterator`属性上面：
 
 ```javascript
 function* objectEntries() {
@@ -431,14 +433,14 @@ for (let n of numbers()) {
 
 ## Generator.prototype.throw()
 
-Generator 函数返回的遍历器对象，都有一个`throw`方法，可以在函数体外抛出错误，然后在 Generator 函数体内捕获。
+**Generator 函数返回的遍历器对象，都有一个`throw`方法，可以在 *函数体外* 抛出错误，然后在 Generator *函数体内* 捕获。**
 
 ```javascript
 var g = function* () {
   try {
     yield;
   } catch (e) {
-    console.log('内部捕获', e);
+    console.log('内部捕获', e);   // 内部捕获 a
   }
 };
 
@@ -449,15 +451,15 @@ try {
   i.throw('a');
   i.throw('b');
 } catch (e) {
-  console.log('外部捕获', e);
+  console.log('外部捕获', e);  // 外部捕获 b
 }
 // 内部捕获 a
 // 外部捕获 b
 ```
 
-上面代码中，遍历器对象`i`连续抛出两个错误。第一个错误被 Generator 函数体内的`catch`语句捕获。`i`第二次抛出错误，由于 Generator 函数内部的`catch`语句已经执行过了，不会再捕捉到这个错误了，所以这个错误就被抛出了 Generator 函数体，被函数体外的`catch`语句捕获。
+上面代码中，遍历器对象`i`连续抛出2个错误。第一个错误被 Generator 函数体内的`catch`语句捕获。`i`第二次抛出错误，由于 Generator 函数内部的`catch`语句已经执行过了，不会再捕捉到这个错误了，所以这个错误就被抛出了 Generator 函数体，被函数体外的`catch`语句捕获。
 
-`throw`方法可以接受一个参数，该参数会被`catch`语句接收，建议抛出`Error`对象的实例。
+`throw`方法可以接受1个参数，该参数会被`catch`语句接收，建议抛出`Error`对象的实例。
 
 ```javascript
 var g = function* () {
@@ -474,7 +476,7 @@ i.throw(new Error('出错了！'));
 // Error: 出错了！(…)
 ```
 
-注意，不要混淆遍历器对象的`throw`方法和全局的`throw`命令。上面代码的错误，是用遍历器对象的`throw`方法抛出的，而不是用`throw`命令抛出的。后者只能被函数体外的`catch`语句捕获。
+注意，不要混淆遍历器对象的 *`throw`方法* 和全局的 *`throw`命令* 。上面代码的错误，是用遍历器对象的`throw`方法抛出的，而不是用`throw`命令抛出的。后者只能被函数体外的`catch`语句捕获。
 
 ```javascript
 var g = function* () {
@@ -502,7 +504,7 @@ try {
 
 上面代码之所以只捕获了`a`，是因为函数体外的`catch`语句块，捕获了抛出的`a`错误以后，就不会再继续`try`代码块里面剩余的语句了。
 
-如果 Generator 函数内部没有部署`try...catch`代码块，那么`throw`方法抛出的错误，将被外部`try...catch`代码块捕获。
+**如果 Generator 函数内部没有部署`try...catch`代码块，那么*`throw`方法* 抛出的错误，将被外部`try...catch`代码块捕获。**
 
 ```javascript
 var g = function* () {
@@ -526,7 +528,7 @@ try {
 
 上面代码中，Generator 函数`g`内部没有部署`try...catch`代码块，所以抛出的错误直接被外部`catch`代码块捕获。
 
-如果 Generator 函数内部和外部，都没有部署`try...catch`代码块，那么程序将报错，直接中断执行。
+**如果 Generator 函数内部和外部，都没有部署`try...catch`代码块，那么程序将报错，直接中断执行。**
 
 ```javascript
 var gen = function* gen(){
@@ -561,7 +563,7 @@ g.throw(1);
 
 上面代码中，`g.throw(1)`执行时，`next`方法一次都没有执行过。这时，抛出的错误不会被内部捕获，而是直接在外部抛出，导致程序出错。这种行为其实很好理解，因为第一次执行`next`方法，等同于启动执行 Generator 函数的内部代码，否则 Generator 函数还没有开始执行，这时`throw`方法抛错只可能抛出在函数外部。
 
-`throw`方法被捕获以后，会附带执行下一条`yield`表达式。也就是说，会附带执行一次`next`方法。
+**`throw`方法被捕获以后，会附带执行下一条`yield`表达式。也就是说，会附带执行一次`next`方法。**
 
 ```javascript
 var gen = function* gen(){
@@ -580,7 +582,7 @@ g.throw() // b
 g.next() // c
 ```
 
-上面代码中，`g.throw`方法被捕获以后，自动执行了一次`next`方法，所以会打印`b`。另外，也可以看到，只要 Generator 函数内部部署了`try...catch`代码块，那么遍历器的`throw`方法抛出的错误，不影响下一次遍历。
+上面代码中，`g.throw`方法被捕获以后，自动执行了一次`next`方法，所以会打印`b`。另外，也可以看到，**只要 Generator 函数内部部署了`try...catch`代码块，那么遍历器的`throw`方法抛出的错误，不影响下一次遍历。**
 
 另外，`throw`命令与`g.throw`方法是无关的，两者互不影响。
 
@@ -604,9 +606,9 @@ try {
 
 上面代码中，`throw`命令抛出的错误不会影响到遍历器的状态，所以两次执行`next`方法，都进行了正确的操作。
 
-这种函数体内捕获错误的机制，大大方便了对错误的处理。多个`yield`表达式，可以只用一个`try...catch`代码块来捕获错误。如果使用回调函数的写法，想要捕获多个错误，就不得不为每个函数内部写一个错误处理语句，现在只在 Generator 函数内部写一次`catch`语句就可以了。
+**这种函数体内捕获错误的机制，大大方便了对错误的处理。多个`yield`表达式，可以只用一个`try...catch`代码块来捕获错误。如果使用回调函数的写法，想要捕获多个错误，就不得不为每个函数内部写一个错误处理语句，现在只在 Generator 函数内部写一次`catch`语句就可以了。**
 
-Generator 函数体外抛出的错误，可以在函数体内捕获；反过来，Generator 函数体内抛出的错误，也可以被函数体外的`catch`捕获。
+**Generator 函数体外抛出的错误，可以在函数体内捕获；反过来，Generator 函数体内抛出的错误，也可以被函数体外的`catch`捕获。**
 
 ```javascript
 function* foo() {
@@ -622,13 +624,13 @@ it.next(); // { value:3, done:false }
 try {
   it.next(42);
 } catch (err) {
-  console.log(err);
+  console.log(err);  // TypeError: x.toUpperCase is not a function
 }
 ```
 
 上面代码中，第二个`next`方法向函数体内传入一个参数 42，数值是没有`toUpperCase`方法的，所以会抛出一个 TypeError 错误，被函数体外的`catch`捕获。
 
-一旦 Generator 执行过程中抛出错误，且没有被内部捕获，就不会再执行下去了。如果此后还调用`next`方法，将返回一个`value`属性等于`undefined`、`done`属性等于`true`的对象，即 JavaScript 引擎认为这个 Generator 已经运行结束了。
+**一旦 Generator 执行过程中抛出错误，且没有被内部捕获，就不会再执行下去了。如果此后还调用`next`方法，将返回一个`value`属性等于`undefined`、`done`属性等于`true`的对象，即 JavaScript 引擎认为这个 Generator 已经运行结束了。**
 
 ```javascript
 function* g() {
