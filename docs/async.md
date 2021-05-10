@@ -161,9 +161,9 @@ const foo = async () => {};
 
 ### 返回 Promise 对象
 
-`async`函数返回一个 Promise 对象。
+**`async`函数返回一个 Promise 对象。**
 
-`async`函数内部`return`语句返回的值，会成为`then`方法回调函数的参数。
+**`async`函数内部`return`语句返回的值，会成为`then`方法回调函数的参数。**
 
 ```javascript
 async function f() {
@@ -176,7 +176,7 @@ f().then(v => console.log(v))
 
 上面代码中，函数`f`内部`return`命令返回的值，会被`then`方法回调函数接收到。
 
-`async`函数内部抛出错误，会导致返回的 Promise 对象变为`reject`状态。抛出的错误对象会被`catch`方法回调函数接收到。
+**`async`函数内部抛出错误，会导致返回的 Promise 对象变为`reject`状态。抛出的错误对象会被`catch`方法回调函数接收到。**
 
 ```javascript
 async function f() {
@@ -192,7 +192,7 @@ f().then(
 
 ### Promise 对象的状态变化
 
-`async`函数返回的 Promise 对象，必须等到内部所有`await`命令后面的 Promise 对象执行完，才会发生状态改变，除非遇到`return`语句或者抛出错误。也就是说，只有`async`函数内部的异步操作执行完，才会执行`then`方法指定的回调函数。
+**`async`函数返回的 Promise 对象，必须等到内部所有`await`命令后面的 Promise 对象执行完，才会发生状态改变，除非遇到`return`语句或者抛出错误。也就是说，只有`async`函数内部的异步操作执行完，才会执行`then`方法指定的回调函数。**
 
 下面是一个例子。
 
@@ -202,6 +202,7 @@ async function getTitle(url) {
   let html = await response.text();
   return html.match(/<title>([\s\S]+)<\/title>/i)[1];
 }
+
 getTitle('https://tc39.github.io/ecma262/').then(console.log)
 // "ECMAScript 2017 Language Specification"
 ```
