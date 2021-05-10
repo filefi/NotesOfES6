@@ -876,7 +876,7 @@ gen.next().value // "close"
 
 上面例子中，`outer2`使用了`yield*`，`outer1`没使用。结果就是，`outer1`返回一个遍历器对象，`outer2`返回该遍历器对象的内部值。
 
-从语法角度看，如果`yield`表达式后面跟的是一个遍历器对象，需要在`yield`表达式后面加上星号，表明它返回的是一个遍历器对象。这被称为`yield*`表达式。
+**从语法角度看，如果`yield`表达式后面跟的是一个遍历器对象，需要在`yield`表达式后面加上星号，表明它返回的是一个遍历器对象。这被称为`yield*`表达式。**
 
 ```javascript
 let delegatedIterator = (function* () {
@@ -886,7 +886,7 @@ let delegatedIterator = (function* () {
 
 let delegatingIterator = (function* () {
   yield 'Greetings!';
-  yield* delegatedIterator;
+  yield* delegatedIterator;   // yield* 后跟遍历器对象
   yield 'Ok, bye.';
 }());
 
@@ -921,9 +921,9 @@ function* concat(iter1, iter2) {
 }
 ```
 
-上面代码说明，`yield*`后面的 Generator 函数（没有`return`语句时），不过是`for...of`的一种简写形式，完全可以用后者替代前者。反之，在有`return`语句时，则需要用`var value = yield* iterator`的形式获取`return`语句的值。
+上面代码说明，**`yield*`后面的 Generator 函数（没有`return`语句时），不过是`for...of`的一种简写形式，完全可以用后者替代前者。反之，在有`return`语句时，则需要用`var value = yield* iterator`的形式获取`return`语句的值。**
 
-如果`yield*`后面跟着一个数组，由于数组原生支持遍历器，因此就会遍历数组成员。
+**如果`yield*`后面跟着一个数组，由于数组原生支持遍历器，因此就会遍历数组成员。**
 
 ```javascript
 function* gen(){
@@ -935,7 +935,7 @@ gen().next() // { value:"a", done:false }
 
 上面代码中，`yield`命令后面如果不加星号，返回的是整个数组，加了星号就表示返回的是数组的遍历器对象。
 
-实际上，任何数据结构只要有 Iterator 接口，就可以被`yield*`遍历。
+**实际上，任何数据结构只要有 Iterator 接口，就可以被`yield*`遍历。**
 
 ```javascript
 let read = (function* () {
@@ -949,18 +949,18 @@ read.next().value // "h"
 
 上面代码中，`yield`表达式返回整个字符串，`yield*`语句返回单个字符。因为字符串具有 Iterator 接口，所以被`yield*`遍历。
 
-如果被代理的 Generator 函数有`return`语句，那么就可以向代理它的 Generator 函数返回数据。
+**如果被代理的 Generator 函数有`return`语句，那么就可以向代理它的 Generator 函数返回数据。**
 
 ```javascript
 function* foo() {
   yield 2;
   yield 3;
-  return "foo";
+  return "foo";  //注意这里的return
 }
 
 function* bar() {
   yield 1;
-  var v = yield* foo();
+  var v = yield* foo();  //yield*取到Generator函数return的返回值
   console.log("v: " + v);
   yield 4;
 }
@@ -1002,7 +1002,7 @@ function* logReturned(genObj) {
 
 上面代码中，存在两次遍历。第一次是扩展运算符遍历函数`logReturned`返回的遍历器对象，第二次是`yield*`语句遍历函数`genFuncWithReturn`返回的遍历器对象。这两次遍历的效果是叠加的，最终表现为扩展运算符遍历函数`genFuncWithReturn`返回的遍历器对象。所以，最后的数据表达式得到的值等于`[ 'a', 'b' ]`。但是，函数`genFuncWithReturn`的`return`语句的返回值`The result`，会返回给函数`logReturned`内部的`result`变量，因此会有终端输出。
 
-`yield*`命令可以很方便地取出嵌套数组的所有成员。
+**`yield*`命令可以很方便地取出嵌套数组的所有成员。**
 
 ```javascript
 function* iterTree(tree) {
@@ -1099,7 +1099,7 @@ let obj = {
 
 ## Generator 函数的`this`
 
-Generator 函数总是返回一个遍历器，ES6 规定这个遍历器是 Generator 函数的实例，也继承了 Generator 函数的`prototype`对象上的方法。
+**Generator 函数总是返回一个遍历器，ES6 规定这个遍历器是 Generator 函数的实例，也继承了 Generator 函数的`prototype`对象上的方法。**
 
 ```javascript
 function* g() {}
@@ -1114,7 +1114,7 @@ obj instanceof g // true
 obj.hello() // 'hi!'
 ```
 
-上面代码表明，Generator 函数`g`返回的遍历器`obj`，是`g`的实例，而且继承了`g.prototype`。但是，如果把`g`当作普通的构造函数，并不会生效，因为`g`返回的总是遍历器对象，而不是`this`对象。
+上面代码表明，Generator 函数`g`返回的遍历器`obj`，是`g`的实例，而且继承了`g.prototype`。*但是，如果把`g`当作普通的构造函数，并不会生效，因为`g`返回的总是遍历器对象，而不是`this`对象。*
 
 ```javascript
 function* g() {
@@ -1128,7 +1128,7 @@ obj.a // undefined
 
 上面代码中，Generator 函数`g`在`this`对象上面添加了一个属性`a`，但是`obj`对象拿不到这个属性。
 
-Generator 函数也不能跟`new`命令一起用，会报错。
+**Generator 函数也不能跟`new`命令一起用，会报错。**
 
 ```javascript
 function* F() {
@@ -1164,7 +1164,7 @@ obj.b // 2
 obj.c // 3
 ```
 
-上面代码中，首先是`F`内部的`this`对象绑定`obj`对象，然后调用它，返回一个 Iterator 对象。这个对象执行三次`next`方法（因为`F`内部有两个`yield`表达式），完成 F 内部所有代码的运行。这时，所有内部属性都绑定在`obj`对象上了，因此`obj`对象也就成了`F`的实例。
+上面代码中，首先是`F`内部的`this`对象绑定`obj`对象，然后调用它，返回一个 Iterator 对象。这个对象执行3次`next`方法（因为`F`内部有两个`yield`表达式），完成 F 内部所有代码的运行。这时，所有内部属性都绑定在`obj`对象上了，因此`obj`对象也就成了`F`的实例。
 
 上面代码中，执行的是遍历器对象`f`，但是生成的对象实例是`obj`，有没有办法将这两个对象统一呢？
 
@@ -1542,3 +1542,4 @@ function doStuff() {
 ```
 
 上面的函数，可以用一模一样的`for...of`循环处理！两相一比较，就不难看出 Generator 使得数据或者操作，具备了类似数组的接口。
+
