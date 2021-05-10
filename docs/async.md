@@ -4,7 +4,7 @@
 
 ES2017 标准引入了 async 函数，使得异步操作变得更加方便。
 
-async 函数是什么？一句话，它就是 Generator 函数的语法糖。
+**async 函数是什么？一句话，它就是 Generator 函数的语法糖。**
 
 前文有一个 Generator 函数，依次读取两个文件。
 
@@ -41,11 +41,11 @@ const asyncReadFile = async function () {
 
 一比较就会发现，`async`函数就是将 Generator 函数的星号（`*`）替换成`async`，将`yield`替换成`await`，仅此而已。
 
-`async`函数对 Generator 函数的改进，体现在以下四点。
+**`async`函数对 Generator 函数的改进，体现在以下4点：**
 
-（1）内置执行器。
+- **（1）内置执行器**
 
-Generator 函数的执行必须靠执行器，所以才有了`co`模块，而`async`函数自带执行器。也就是说，`async`函数的执行，与普通函数一模一样，只要一行。
+Generator 函数的执行必须依靠执行器，所以才有了`co`模块，而`async`函数自带执行器。也就是说，`async`函数的执行，与普通函数一模一样，只要一行。
 
 ```javascript
 asyncReadFile();
@@ -53,19 +53,19 @@ asyncReadFile();
 
 上面的代码调用了`asyncReadFile`函数，然后它就会自动执行，输出最后结果。这完全不像 Generator 函数，需要调用`next`方法，或者用`co`模块，才能真正执行，得到最后结果。
 
-（2）更好的语义。
+- **（2）更好的语义**
 
 `async`和`await`，比起星号和`yield`，语义更清楚了。`async`表示函数里有异步操作，`await`表示紧跟在后面的表达式需要等待结果。
 
-（3）更广的适用性。
+- **（3）更广的适用性**
 
 `co`模块约定，`yield`命令后面只能是 Thunk 函数或 Promise 对象，而`async`函数的`await`命令后面，可以是 Promise 对象和原始类型的值（数值、字符串和布尔值，但这时会自动转成立即 resolved 的 Promise 对象）。
 
-（4）返回值是 Promise。
+- **（4）返回值是 Promise**
 
 `async`函数的返回值是 Promise 对象，这比 Generator 函数的返回值是 Iterator 对象方便多了。你可以用`then`方法指定下一步的操作。
 
-进一步说，`async`函数完全可以看作多个异步操作，包装成的一个 Promise 对象，而`await`命令就是内部`then`命令的语法糖。
+**进一步说，`async`函数完全可以看作多个异步操作，包装成的一个 Promise 对象，而`await`命令就是内部`then`命令的语法糖。**
 
 ## 基本用法
 
@@ -106,11 +106,11 @@ asyncPrint('hello world', 50);
 
 上面代码指定 50 毫秒以后，输出`hello world`。
 
-由于`async`函数返回的是 Promise 对象，可以作为`await`命令的参数。所以，上面的例子也可以写成下面的形式。
+**由于`async`函数返回的是 Promise 对象，可以作为`await`命令的参数。**所以，上面的例子也可以写成下面的形式。
 
 ```javascript
 async function timeout(ms) {
-  await new Promise((resolve) => {
+  await new Promise((resolve) => {  // 可以直接await一个Promise对象
     setTimeout(resolve, ms);
   });
 }
@@ -123,7 +123,7 @@ async function asyncPrint(value, ms) {
 asyncPrint('hello world', 50);
 ```
 
-async 函数有多种使用形式。
+**async 函数有多种使用形式：**
 
 ```javascript
 // 函数声明
