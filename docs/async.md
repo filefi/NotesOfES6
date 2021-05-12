@@ -170,8 +170,19 @@ async function f() {
   return 'hello world';
 }
 
+// async函数返回一个Promise对象；
+f() instanceof Promise  // true
+
+// async函数内部的return语句返回的值，会成为async函数返回的Promise对象then方法的回调函数的参数；
 f().then(v => console.log(v))
 // "hello world"
+
+// await语句可以取到Promise对象的结果，即原本应该传递给then方法回调函数的参数；
+let v = await f();
+v === 'hello world';  // true
+
+// 等同于
+await f() === 'hello world';
 ```
 
 上面代码中，函数`f`内部`return`命令返回的值，会被`then`方法回调函数接收到。
@@ -211,13 +222,13 @@ getTitle('https://tc39.github.io/ecma262/').then(console.log)
 
 ### await 命令
 
-正常情况下，`await`命令后面是一个 Promise 对象，返回该对象的结果。如果不是 Promise 对象，就直接返回对应的值。
+**正常情况下，`await`命令后面是一个 Promise 对象，返回该对象的结果。如果不是 Promise 对象，就直接返回对应的值。**
 
 ```javascript
 async function f() {
+  return await 123;
   // 等同于
   // return 123;
-  return await 123;
 }
 
 f().then(v => console.log(v))
@@ -226,7 +237,7 @@ f().then(v => console.log(v))
 
 上面代码中，`await`命令的参数是数值`123`，这时等同于`return 123`。
 
-另一种情况是，`await`命令后面是一个`thenable`对象（即定义了`then`方法的对象），那么`await`会将其等同于 Promise 对象。
+**另一种情况是，`await`命令后面是一个`thenable`对象（即定义了`then`方法的对象），那么`await`会将其等同于 Promise 对象。**
 
 ```javascript
 class Sleep {
@@ -284,9 +295,9 @@ f()
 // 出错了
 ```
 
-注意，上面代码中，`await`语句前面没有`return`，但是`reject`方法的参数依然传入了`catch`方法的回调函数。这里如果在`await`前面加上`return`，效果是一样的。
+**注意，上面代码中，`await`语句前面没有`return`，但是`reject`方法的参数依然传入了`catch`方法的回调函数。这里如果在`await`前面加上`return`，效果是一样的。**
 
-任何一个`await`语句后面的 Promise 对象变为`reject`状态，那么整个`async`函数都会中断执行。
+**任何一个`await`语句后面的 Promise 对象变为`reject`状态，那么整个`async`函数都会中断执行。**
 
 ```javascript
 async function f() {
@@ -297,13 +308,14 @@ async function f() {
 
 上面代码中，第二个`await`语句是不会执行的，因为第一个`await`语句状态变成了`reject`。
 
-有时，我们希望即使前一个异步操作失败，也不要中断后面的异步操作。这时可以将第一个`await`放在`try...catch`结构里面，这样不管这个异步操作是否成功，第二个`await`都会执行。
+有时，**我们希望即使前一个异步操作失败，也不要中断后面的异步操作。这时可以将第一个`await`放在`try...catch`结构里面，这样不管这个异步操作是否成功，第二个`await`都会执行。**
 
 ```javascript
 async function f() {
   try {
     await Promise.reject('出错了');
   } catch(e) {
+      //...
   }
   return await Promise.resolve('hello world');
 }
@@ -313,7 +325,7 @@ f()
 // hello world
 ```
 
-另一种方法是`await`后面的 Promise 对象再跟一个`catch`方法，处理前面可能出现的错误。
+**另一种方法是`await`后面的 Promise 对象再跟一个`catch`方法，处理前面可能出现的错误。**
 
 ```javascript
 async function f() {
@@ -330,7 +342,7 @@ f()
 
 ### 错误处理
 
-如果`await`后面的异步操作出错，那么等同于`async`函数返回的 Promise 对象被`reject`。
+**如果`await`后面的异步操作出错，那么等同于`async`函数返回的 Promise 对象被`reject`。**
 
 ```javascript
 async function f() {
@@ -356,6 +368,7 @@ async function f() {
       throw new Error('出错了');
     });
   } catch(e) {
+      //...
   }
   return await('hello world');
 }
@@ -390,7 +403,9 @@ async function test() {
     try {
       await superagent.get('http://google.com/this-throws-an-error');
       break;
-    } catch(err) {}
+    } catch(err) {
+        //...
+    }
   }
   console.log(i); // 3
 }
@@ -402,7 +417,7 @@ test();
 
 ### 使用注意点
 
-第一点，前面已经说过，`await`命令后面的`Promise`对象，运行结果可能是`rejected`，所以最好把`await`命令放在`try...catch`代码块中。
+- **1. 前面已经说过，`await`命令后面的`Promise`对象，运行结果可能是`rejected`，所以最好把`await`命令放在`try...catch`代码块中。**
 
 ```javascript
 async function myFunction() {
@@ -414,7 +429,6 @@ async function myFunction() {
 }
 
 // 另一种写法
-
 async function myFunction() {
   await somethingThatReturnsAPromise()
   .catch(function (err) {
@@ -423,7 +437,7 @@ async function myFunction() {
 }
 ```
 
-第二点，多个`await`命令后面的异步操作，如果不存在继发关系，最好让它们同时触发。
+- **2. 多个`await`命令后面的异步操作，如果不存在继发关系，最好让它们同时触发。**
 
 ```javascript
 let foo = await getFoo();
@@ -443,9 +457,36 @@ let foo = await fooPromise;
 let bar = await barPromise;
 ```
 
-上面两种写法，`getFoo`和`getBar`都是同时触发，这样就会缩短程序的执行时间。
+上面两种写法，`getFoo`和`getBar`都是同时触发，这样就会缩短程序的执行时间。实际示例如下：
 
-第三点，`await`命令只能用在`async`函数之中，如果用在普通函数，就会报错。
+```js
+async function f(){
+    return new Promise((resolve, reject)=>{
+        setTimeout(resolve, 2000, 'Haha')
+    })
+}
+
+// 写法一
+async function exec(){
+    let [p1, p2] = await Promise.all([f(), f()])
+    console.log(p1);
+    console.log(p2);
+}
+
+// 写法二
+async function exec(){
+    let p1 = f();
+    let p2 = f();
+    let v1 = await p1;
+    let v2 = await p2;
+    console.log(v1);
+    console.log(v2);
+}
+```
+
+以上这两种写法都能保证2个Promise并发执行，因此两个Promise总共的执行时间耗时2秒，而不是继发执行的4秒。
+
+- **3. `await`命令只能用在`async`函数之中，如果用在普通函数，就会报错。**
 
 ```javascript
 async function dbFuc(db) {
@@ -471,7 +512,7 @@ function dbFuc(db) { //这里不需要 async
 }
 ```
 
-上面代码可能不会正常工作，原因是这时三个`db.post()`操作将是并发执行，也就是同时执行，而不是继发执行。正确的写法是采用`for`循环。
+上面代码可能不会正常工作，原因是这时三个`db.post()`操作将是并发执行，也就是同时执行，而不是继发执行。**正确的写法是采用`for`循环：**
 
 ```javascript
 async function dbFuc(db) {
@@ -483,7 +524,7 @@ async function dbFuc(db) {
 }
 ```
 
-另一种方法是使用数组的`reduce()`方法。
+**另一种方法是使用数组的`reduce()`方法：**
 
 ```javascript
 async function dbFuc(db) {
@@ -525,7 +566,7 @@ async function dbFuc(db) {
 }
 ```
 
-第四点，async 函数可以保留运行堆栈。
+- **4. `async`函数可以保留运行堆栈。**
 
 ```javascript
 const a = () => {
@@ -548,7 +589,7 @@ const a = async () => {
 
 ## async 函数的实现原理
 
-async 函数的实现原理，就是将 Generator 函数和自动执行器，包装在一个函数里。
+**async 函数的实现原理，就是将 Generator 函数和自动执行器，包装在一个函数里。**
 
 ```javascript
 async function fn(args) {
