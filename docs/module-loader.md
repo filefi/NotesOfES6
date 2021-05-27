@@ -276,15 +276,15 @@ $ babel-node main.js
 
 ### 概述
 
-JavaScript 现在有两种模块。一种是 ES6 模块，简称 ESM；另一种是 CommonJS 模块，简称 CJS。
+JavaScript 现在有2种模块。一种是 ES6 模块，简称 ESM；另一种是 CommonJS 模块，简称 CJS。
 
-CommonJS 模块是 Node.js 专用的，与 ES6 模块不兼容。语法上面，两者最明显的差异是，CommonJS 模块使用`require()`和`module.exports`，ES6 模块使用`import`和`export`。
+**CommonJS 模块是 Node.js 专用的，与 ES6 模块不兼容。语法上面，两者最明显的差异是，CommonJS 模块使用`require()`和`module.exports`，ES6 模块使用`import`和`export`。**
 
 它们采用不同的加载方案。从 Node.js v13.2 版本开始，Node.js 已经默认打开了 ES6 模块支持。
 
-Node.js 要求 ES6 模块采用`.mjs`后缀文件名。也就是说，只要脚本文件里面使用`import`或者`export`命令，那么就必须采用`.mjs`后缀名。Node.js 遇到`.mjs`文件，就认为它是 ES6 模块，默认启用严格模式，不必在每个模块文件顶部指定`"use strict"`。
+**Node.js 要求 ES6 模块采用`.mjs`后缀文件名。也就是说，只要脚本文件里面使用`import`或者`export`命令，那么就必须采用`.mjs`后缀名。Node.js 遇到`.mjs`文件，就认为它是 ES6 模块，默认启用严格模式，不必在每个模块文件顶部指定`"use strict"`。**
 
-如果不希望将后缀名改成`.mjs`，可以在项目的`package.json`文件中，指定`type`字段为`module`。
+**如果不希望将后缀名改成`.mjs`，可以在项目的`package.json`文件中，指定`type`字段为`module`：**
 
 ```javascript
 {
@@ -292,18 +292,18 @@ Node.js 要求 ES6 模块采用`.mjs`后缀文件名。也就是说，只要脚�
 }
 ```
 
-一旦设置了以后，该目录里面的 JS 脚本，就被解释用 ES6 模块。
+**一旦指定`type`字段为`module`，该目录里面的 JS 脚本，就被解释用 ES6 模块。**
 
 ```bash
 # 解释成 ES6 模块
 $ node my-app.js
 ```
 
-如果这时还要使用 CommonJS 模块，那么需要将 CommonJS 脚本的后缀名都改成`.cjs`。如果没有`type`字段，或者`type`字段为`commonjs`，则`.js`脚本会被解释成 CommonJS 模块。
+**如果这时还要使用 CommonJS 模块，那么需要将 CommonJS 脚本的后缀名都改成`.cjs`。如果没有`type`字段，或者`type`字段为`commonjs`，则`.js`脚本会被解释成 CommonJS 模块。**
 
-总结为一句话：`.mjs`文件总是以 ES6 模块加载，`.cjs`文件总是以 CommonJS 模块加载，`.js`文件的加载取决于`package.json`里面`type`字段的设置。
+**总结为一句话：`.mjs`文件总是以 ES6 模块加载，`.cjs`文件总是以 CommonJS 模块加载，`.js`文件的加载取决于`package.json`里面`type`字段的设置。**
 
-注意，ES6 模块与 CommonJS 模块尽量不要混用。`require`命令不能加载`.mjs`文件，会报错，只有`import`命令才可以加载`.mjs`文件。反过来，`.mjs`文件里面也不能使用`require`命令，必须使用`import`。
+**注意，ES6 模块与 CommonJS 模块尽量不要混用。`require`命令不能加载`.mjs`文件，会报错，只有`import`命令才可以加载`.mjs`文件。反过来，`.mjs`文件里面也不能使用`require`命令，必须使用`import`。**
 
 ### package.json 的 main 字段
 
@@ -334,7 +334,9 @@ import { something } from 'es-module-package';
 
 ### package.json 的 exports 字段
 
-`exports`字段的优先级高于`main`字段。它有多种用法。
+**`exports`字段的优先级高于`main`字段。**
+
+`exports`字段有多种用法：
 
 （1）子目录别名
 
@@ -575,9 +577,9 @@ import './foo.mjs?query=1'; // 加载 ./foo 传入参数 ?query=1
 
 ES6 模块应该是通用的，同一个模块不用修改，就可以用在浏览器环境和服务器环境。为了达到这个目标，Node.js 规定 ES6 模块之中不能使用 CommonJS 模块的特有的一些内部变量。
 
-首先，就是`this`关键字。ES6 模块之中，顶层的`this`指向`undefined`；CommonJS 模块的顶层`this`指向当前模块，这是两者的一个重大差异。
+**首先，就是`this`关键字。ES6 模块之中，顶层的`this`指向`undefined`；CommonJS 模块的顶层`this`指向当前模块，这是两者的一个重大差异。**
 
-其次，以下这些顶层变量在 ES6 模块之中都是不存在的。
+**其次，以下这些顶层变量在 ES6 模块之中都是不存在的：**
 
 - `arguments`
 - `require`
@@ -606,9 +608,7 @@ var a = require('a');
 
 ### CommonJS 模块的加载原理
 
-介绍 ES6 如何处理“循环加载”之前，先介绍目前最流行的 CommonJS 模块格式的加载原理。
-
-CommonJS 的一个模块，就是一个脚本文件。`require`命令第一次加载该脚本，就会执行整个脚本，然后在内存生成一个对象。
+**CommonJS 的一个模块，就是一个脚本文件。`require`命令第一次加载该脚本，就会执行整个脚本，然后在内存生成一个对象。**
 
 ```javascript
 {
@@ -621,7 +621,7 @@ CommonJS 的一个模块，就是一个脚本文件。`require`命令第一次�
 
 上面代码就是 Node 内部加载模块后生成的一个对象。该对象的`id`属性是模块名，`exports`属性是模块输出的各个接口，`loaded`属性是一个布尔值，表示该模块的脚本是否执行完毕。其他还有很多属性，这里都省略了。
 
-以后需要用到这个模块的时候，就会到`exports`属性上面取值。即使再次执行`require`命令，也不会再次执行该模块，而是到缓存之中取值。也就是说，CommonJS 模块无论加载多少次，都只会在第一次加载时运行一次，以后再加载，就返回第一次运行的结果，除非手动清除系统缓存。
+**以后需要用到这个模块的时候，就会到`exports`属性上面取值。即使再次执行`require`命令，也不会再次执行该模块，而是到缓存之中取值。也就是说，CommonJS 模块无论加载多少次，都只会在第一次加载时运行一次，以后再加载，就返回第一次运行的结果，除非手动清除系统缓存。**
 
 ### CommonJS 模块的循环加载
 
@@ -679,15 +679,15 @@ a.js 执行完毕
 在 main.js 之中, a.done=true, b.done=true
 ```
 
-上面的代码证明了两件事。一是，在`b.js`之中，`a.js`没有执行完毕，只执行了第一行。二是，`main.js`执行到第二行时，不会再次执行`b.js`，而是输出缓存的`b.js`的执行结果，即它的第四行。
+**上面的代码证明了两件事。一是，在`b.js`之中，`a.js`没有执行完毕，只执行了第一行。二是，`main.js`执行到第二行时，不会再次执行`b.js`，而是输出缓存的`b.js`的执行结果，即它的第四行。**
 
 ```javascript
 exports.done = true;
 ```
 
-总之，CommonJS 输入的是被输出值的拷贝，不是引用。
+**总之，CommonJS 输入的是被输出值的拷贝，不是引用。**
 
-另外，由于 CommonJS 模块遇到循环加载时，返回的是当前已经执行的部分的值，而不是代码全部执行后的值，两者可能会有差异。所以，输入变量的时候，必须非常小心。
+**另外，由于 CommonJS 模块遇到循环加载时，返回的是当前已经执行的部分的值，而不是代码全部执行后的值，两者可能会有差异。所以，输入变量的时候，必须非常小心：**
 
 ```javascript
 var a = require('a'); // 安全的写法
@@ -706,7 +706,7 @@ exports.bad = function (arg) {
 
 ### ES6 模块的循环加载
 
-ES6 处理“循环加载”与 CommonJS 有本质的不同。ES6 模块是动态引用，如果使用`import`从一个模块加载变量（即`import foo from 'foo'`），那些变量不会被缓存，而是成为一个指向被加载模块的引用，需要开发者自己保证，真正取值的时候能够取到值。
+ES6 处理“循环加载”与 CommonJS 有本质的不同。**ES6 模块是动态引用，如果使用`import`从一个模块加载变量（即`import foo from 'foo'`），那些变量不会被缓存，而是成为一个指向被加载模块的引用，需要开发者自己保证，真正取值的时候能够取到值。**
 
 请看下面这个例子。
 
@@ -734,23 +734,23 @@ ReferenceError: foo is not defined
 
 上面代码中，执行`a.mjs`以后会报错，`foo`变量未定义，这是为什么？
 
-让我们一行行来看，ES6 循环加载是怎么处理的。首先，执行`a.mjs`以后，引擎发现它加载了`b.mjs`，因此会优先执行`b.mjs`，然后再执行`a.mjs`。接着，执行`b.mjs`的时候，已知它从`a.mjs`输入了`foo`接口，这时不会去执行`a.mjs`，而是认为这个接口已经存在了，继续往下执行。执行到第三行`console.log(foo)`的时候，才发现这个接口根本没定义，因此报错。
+让我们一行行来看，ES6 循环加载是怎么处理的。**首先，执行`a.mjs`以后，引擎发现它加载了`b.mjs`，因此会优先执行`b.mjs`，然后再执行`a.mjs`。接着，执行`b.mjs`的时候，已知它从`a.mjs`输入了`foo`接口，这时不会去执行`a.mjs`，而是认为这个接口已经存在了，继续往下执行。执行到第三行`console.log(foo)`的时候，才发现这个接口根本没定义，因此报错。**
 
-解决这个问题的方法，就是让`b.mjs`运行的时候，`foo`已经有定义了。这可以通过将`foo`写成函数来解决。
+**解决这个问题的方法，就是让`b.mjs`运行的时候，`foo`已经有定义了。这可以通过将`foo`写成函数来解决。**
 
 ```javascript
 // a.mjs
 import {bar} from './b';
 console.log('a.mjs');
 console.log(bar());
-function foo() { return 'foo' }
+function foo() { return 'foo' }   // 函数具有提升效果，不会报错
 export {foo};
 
 // b.mjs
 import {foo} from './a';
 console.log('b.mjs');
 console.log(foo());
-function bar() { return 'bar' }
+function bar() { return 'bar' }  // 函数具有提升效果，不会报错
 export {bar};
 ```
 
@@ -764,14 +764,14 @@ a.mjs
 bar
 ```
 
-这是因为函数具有提升作用，在执行`import {bar} from './b'`时，函数`foo`就已经有定义了，所以`b.mjs`加载的时候不会报错。这也意味着，如果把函数`foo`改写成函数表达式，也会报错。
+**这是因为函数具有提升作用，在执行`import {bar} from './b'`时，函数`foo`就已经有定义了，所以`b.mjs`加载的时候不会报错。这也意味着，如果把函数`foo`改写成函数表达式，也会报错。**
 
 ```javascript
 // a.mjs
 import {bar} from './b';
 console.log('a.mjs');
 console.log(bar());
-const foo = () => 'foo';
+const foo = () => 'foo';   // 改成表达式，不具有提升效果，执行就会报错
 export {foo};
 ```
 
