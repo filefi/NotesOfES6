@@ -75,7 +75,7 @@ ES2018 [引入](https://github.com/tc39/proposal-async-iteration)了“异步遍
 
 ## 异步遍历的接口
 
-异步遍历器的最大的语法特点，就是调用遍历器的`next`方法，返回的是一个 Promise 对象。
+**异步遍历器的最大的语法特点，就是调用遍历器的`next`方法，返回的是一个 Promise 对象。**
 
 ```javascript
 asyncIterator
@@ -85,9 +85,9 @@ asyncIterator
   );
 ```
 
-上面代码中，`asyncIterator`是一个异步遍历器，调用`next`方法以后，返回一个 Promise 对象。因此，可以使用`then`方法指定，这个 Promise 对象的状态变为`resolve`以后的回调函数。回调函数的参数，则是一个具有`value`和`done`两个属性的对象，这个跟同步遍历器是一样的。
+上面代码中，`asyncIterator`是一个异步遍历器，调用`next`方法以后，返回一个 Promise 对象。**因此，可以使用`then`方法指定，这个 Promise 对象的状态变为`resolve`以后的回调函数。回调函数的参数，则是一个具有`value`和`done`两个属性的对象，这个跟同步遍历器是一样的。**
 
-我们知道，一个对象的同步遍历器的接口，部署在`Symbol.iterator`属性上面。同样地，对象的异步遍历器接口，部署在`Symbol.asyncIterator`属性上面。不管是什么样的对象，只要它的`Symbol.asyncIterator`属性有值，就表示应该对它进行异步遍历。
+我们知道，**一个对象的同步遍历器的接口，部署在`Symbol.iterator`属性上面。同样地，对象的异步遍历器接口，部署在`Symbol.asyncIterator`属性上面。**不管是什么样的对象，只要它的`Symbol.asyncIterator`属性有值，就表示应该对它进行异步遍历。
 
 下面是一个异步遍历器的例子。
 
@@ -129,7 +129,7 @@ async function f() {
 
 上面代码中，`next`方法用`await`处理以后，就不必使用`then`方法了。整个流程已经很接近同步处理了。
 
-注意，异步遍历器的`next`方法是可以连续调用的，不必等到上一步产生的 Promise 对象`resolve`以后再调用。这种情况下，`next`方法会累积起来，自动按照每一步的顺序运行下去。下面是一个例子，把所有的`next`方法放在`Promise.all`方法里面。
+**注意，异步遍历器的`next`方法是可以连续调用的，不必等到上一步产生的 Promise 对象`resolve`以后再调用。这种情况下，`next`方法会累积起来，自动按照每一步的顺序运行下去。**下面是一个例子，把所有的`next`方法放在`Promise.all`方法里面：
 
 ```javascript
 const asyncIterable = createAsyncIterable(['a', 'b']);
@@ -184,7 +184,7 @@ async function f() {
 
 上面代码中，`req`是一个 asyncIterable 对象，用来异步读取数据。可以看到，使用`for await...of`循环以后，代码会非常简洁。
 
-如果`next`方法返回的 Promise 对象被`reject`，`for await...of`就会报错，要用`try...catch`捕捉。
+**如果`next`方法返回的 Promise 对象被`reject`，`for await...of`就会报错，要用`try...catch`捕捉。**
 
 ```javascript
 async function () {
@@ -198,7 +198,7 @@ async function () {
 }
 ```
 
-注意，`for await...of`循环也可以用于同步遍历器。
+**注意，`for await...of`循环也可以用于同步遍历器。**
 
 ```javascript
 (async function () {
@@ -210,7 +210,7 @@ async function () {
 // b
 ```
 
-Node v10 支持异步遍历器，Stream 就部署了这个接口。下面是读取文件的传统写法与异步遍历器写法的差异。
+**Node v10 支持异步遍历器，Stream 就部署了这个接口。下面是读取文件的传统写法与异步遍历器写法的差异。**
 
 ```javascript
 // 传统写法

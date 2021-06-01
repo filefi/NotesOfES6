@@ -58,7 +58,10 @@ const c = 3;
 const [a, b, c] = [1, 2, 3];
 ```
 
-`const`声明常量还有两个好处，一是阅读代码的人立刻会意识到不应该修改这个值，二是防止了无意间修改变量值所导致的错误。
+`const`声明常量还有2个好处：
+
+- 阅读代码的人立刻会意识到不应该修改这个值；
+- 防止了无意间修改变量值所导致的错误。
 
 所有的函数都应该设置为常量。
 
@@ -267,7 +270,7 @@ const nodes = Array.from(foo);
 [1, 2, 3].map(x => x * x);
 ```
 
-箭头函数取代`Function.prototype.bind`，不应再用 self/\_this/that 绑定 this。
+箭头函数取代`Function.prototype.bind`，不应再用 `self` / `_this` / `that` 绑定 `this`。
 
 ```javascript
 // bad
