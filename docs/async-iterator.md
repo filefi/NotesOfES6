@@ -243,7 +243,7 @@ async function main(inputFilePath) {
 
 ## 异步 Generator 函数
 
-就像 Generator 函数返回一个同步遍历器对象一样，异步 Generator 函数的作用，是返回一个异步遍历器对象。
+就像 Generator 函数返回一个同步遍历器对象一样，**异步 Generator 函数的作用，是返回一个异步遍历器对象。**
 
 在语法上，异步 Generator 函数就是`async`函数与 Generator 函数的结合。
 
@@ -302,7 +302,7 @@ async function* readLines(path) {
 
 上面代码中，异步操作前面使用`await`关键字标明，即`await`后面的操作，应该返回 Promise 对象。凡是使用`yield`关键字的地方，就是`next`方法停下来的地方，它后面的表达式的值（即`await file.readLine()`的值），会作为`next()`返回对象的`value`属性，这一点是与同步 Generator 函数一致的。
 
-异步 Generator 函数内部，能够同时使用`await`和`yield`命令。可以这样理解，`await`命令用于将外部操作产生的值输入函数内部，`yield`命令用于将函数内部的值输出。
+**异步 Generator 函数内部，能够同时使用`await`和`yield`命令。**可以这样理解，`await`命令用于将外部操作产生的值输入函数内部，`yield`命令用于将函数内部的值输出。
 
 上面代码定义的异步 Generator 函数的用法如下。
 
@@ -324,7 +324,7 @@ async function* prefixLines(asyncIterable) {
 }
 ```
 
-异步 Generator 函数的返回值是一个异步 Iterator，即每次调用它的`next`方法，会返回一个 Promise 对象，也就是说，跟在`yield`命令后面的，应该是一个 Promise 对象。如果像上面那个例子那样，`yield`命令后面是一个字符串，会被自动包装成一个 Promise 对象。
+**异步 Generator 函数的返回值是一个异步 Iterator，即每次调用它的`next`方法，会返回一个 Promise 对象，也就是说，跟在`yield`命令后面的，应该是一个 Promise 对象。**如果像上面那个例子那样，`yield`命令后面是一个字符串，会被自动包装成一个 Promise 对象。
 
 ```javascript
 function fetchRandom() {
@@ -382,7 +382,7 @@ asyncGenerator()
 .catch(err => console.log(err)); // Error: Problem!
 ```
 
-注意，普通的 async 函数返回的是一个 Promise 对象，而异步 Generator 函数返回的是一个异步 Iterator 对象。可以这样理解，async 函数和异步 Generator 函数，是封装异步操作的两种方法，都用来达到同一种目的。区别在于，前者自带执行器，后者通过`for await...of`执行，或者自己编写执行器。下面就是一个异步 Generator 函数的执行器。
+**注意，普通的 async 函数返回的是一个 Promise 对象，而异步 Generator 函数返回的是一个异步 Iterator 对象。**可以这样理解，async 函数和异步 Generator 函数，是封装异步操作的两种方法，都用来达到同一种目的。区别在于，前者自带执行器，后者通过`for await...of`执行，或者自己编写执行器。下面就是一个异步 Generator 函数的执行器。
 
 ```javascript
 async function takeAsync(asyncIterable, count = Infinity) {
@@ -417,9 +417,19 @@ f().then(function (result) {
 })
 ```
 
-异步 Generator 函数出现以后，JavaScript 就有了四种函数形式：普通函数、async 函数、Generator 函数和异步 Generator 函数。请注意区分每种函数的不同之处。基本上，如果是一系列按照顺序执行的异步操作（比如读取文件，然后写入新内容，再存入硬盘），可以使用 async 函数；如果是一系列产生相同数据结构的异步操作（比如一行一行读取文件），可以使用异步 Generator 函数。
+异步 Generator 函数出现以后，JavaScript 就有了4种函数形式：
 
-异步 Generator 函数也可以通过`next`方法的参数，接收外部传入的数据。
+- 普通函数
+
+- async 函数
+
+- Generator 函数
+
+- 异步 Generator 函数。
+
+请注意区分每种函数的不同之处。基本上，如果是一系列按照顺序执行的异步操作（比如读取文件，然后写入新内容，再存入硬盘），可以使用 async 函数；如果是一系列产生相同数据结构的异步操作（比如一行一行读取文件），可以使用异步 Generator 函数。
+
+**异步 Generator 函数也可以通过`next`方法的参数，接收外部传入的数据。**
 
 ```javascript
 const writer = openFile('someFile.txt');
@@ -430,7 +440,7 @@ await writer.return(); // 等待写入结束
 
 上面代码中，`openFile`是一个异步 Generator 函数。`next`方法的参数，向该函数内部的操作传入数据。每次`next`方法都是同步执行的，最后的`await`命令用于等待整个写入操作结束。
 
-最后，同步的数据结构，也可以使用异步 Generator 函数。
+**最后，同步的数据结构，也可以使用异步 Generator 函数。**
 
 ```javascript
 async function* createAsyncIterable(syncIterable) {
