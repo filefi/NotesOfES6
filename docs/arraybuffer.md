@@ -186,6 +186,12 @@ TypedArray 数组提供 9 种构造函数，用来生成相应类型的数组实
 
 **（1）TypedArray(buffer, byteOffset=0, length?)**
 
+**视图的构造函数可以接受3个参数：**
+
+- 第1个参数（必需）：视图对应的底层`ArrayBuffer`对象。
+- 第2个参数（可选）：视图开始的字节序号，默认从 0 开始。
+- 第3个参数（可选）：视图包含的数据个数，默认直到本段内存区域结束。
+
 同一个`ArrayBuffer`对象之上，可以根据不同的数据类型，建立多个视图。
 
 ```javascript
@@ -204,12 +210,6 @@ const v3 = new Int16Array(b, 2, 2);
 
 上面代码在一段长度为 8 个字节的内存（`b`）之上，生成了三个视图：`v1`、`v2`和`v3`。
 
-视图的构造函数可以接受三个参数：
-
-- 第一个参数（必需）：视图对应的底层`ArrayBuffer`对象。
-- 第二个参数（可选）：视图开始的字节序号，默认从 0 开始。
-- 第三个参数（可选）：视图包含的数据个数，默认直到本段内存区域结束。
-
 因此，`v1`、`v2`和`v3`是重叠的：`v1[0]`是一个 32 位整数，指向字节 0 ～字节 3；`v2[0]`是一个 8 位无符号整数，指向字节 2；`v3[0]`是一个 16 位整数，指向字节 2 ～字节 3。只要任何一个视图对内存有所修改，就会在另外两个视图上反应出来。
 
 注意，`byteOffset`必须与所要建立的数据类型一致，否则会报错。
@@ -226,7 +226,7 @@ const i16 = new Int16Array(buffer, 1);
 
 **（2）TypedArray(length)**
 
-视图还可以不通过`ArrayBuffer`对象，直接分配内存而生成。
+**视图还可以不通过`ArrayBuffer`对象，直接分配内存而生成。**
 
 ```javascript
 const f64a = new Float64Array(8);
@@ -359,7 +359,7 @@ for (let byte of ui8) {
 
 ### 字节序
 
-字节序指的是数值在内存中的表示方式。
+**字节序指的是数值在内存中的表示方式。**
 
 ```javascript
 const buffer = new ArrayBuffer(16);
@@ -463,7 +463,7 @@ Float64Array.BYTES_PER_ELEMENT // 8
 
 ### ArrayBuffer 与字符串的互相转换
 
-`ArrayBuffer` 和字符串的相互转换，使用原生 `TextEncoder` 和 `TextDecoder` 方法。为了便于说明用法，下面的代码都按照 TypeScript 的用法，给出了类型签名。
+`ArrayBuffer` 和字符串的相互转换，使用原生 `TextEncoder` 和 `TextDecoder` 方法。为了便于说明用法，下面的代码都按照 TypedScript 的用法，给出了类型签名。
 
 ```javascript
 /**
@@ -519,7 +519,7 @@ uint8[0] // 255
 
 负数在计算机内部采用“2 的补码”表示，也就是说，将对应的正数值进行否运算，然后加`1`。比如，`-1`对应的正值是`1`，进行否运算以后，得到`11111110`，再加上`1`就是补码形式`11111111`。`uint8`按照无符号的 8 位整数解释`11111111`，返回结果就是`255`。
 
-一个简单转换规则，可以这样表示。
+**一个简单转换规则，可以这样表示：**
 
 - 正向溢出（overflow）：当输入值大于当前数据类型的最大值，结果等于当前数据类型的最小值加上余值，再减去 1。
 - 负向溢出（underflow）：当输入值小于当前数据类型的最小值，结果等于当前数据类型的最大值减去余值的绝对值，再加上 1。
@@ -580,8 +580,8 @@ const b = new Uint8Array(a.buffer);
 const b = new ArrayBuffer(8);
 
 const v1 = new Int32Array(b);
-const v2 = new Uint8Array(b, 2);
-const v3 = new Int16Array(b, 2, 2);
+const v2 = new Uint8Array(b, 2);   // 8bit * (8-2) = 6 Byte
+const v3 = new Int16Array(b, 2, 2);   // 16bit * 2 = 4 Byte
 
 v1.byteLength // 8
 v2.byteLength // 6
@@ -597,7 +597,7 @@ v3.byteOffset // 2
 `length`属性表示 `TypedArray` 数组含有多少个成员。注意将 `length` 属性和 `byteLength` 属性区分，前者是成员长度，后者是字节长度。
 
 ```javascript
-const a = new Int16Array(8);
+const a = new Int16Array(8);   // 16bit * 8 = 16 Byte
 
 a.length // 8
 a.byteLength // 16
@@ -633,7 +633,7 @@ b.set(a, 2)
 
 ```javascript
 const a = new Uint16Array(8);
-const b = a.subarray(2,3);
+const b = a.subarray(2,3);  // 16bit = 2Byte
 
 a.byteLength // 16
 b.byteLength // 2
