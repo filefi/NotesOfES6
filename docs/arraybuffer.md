@@ -740,9 +740,9 @@ struct someStruct {
 
 如果一段数据包括多种类型（比如服务器传来的 HTTP 数据），这时除了建立`ArrayBuffer`对象的复合视图以外，还可以通过`DataView`视图进行操作。
 
-`DataView`视图提供更多操作选项，而且支持设定字节序。本来，在设计目的上，`ArrayBuffer`对象的各种`TypedArray`视图，是用来向网卡、声卡之类的本机设备传送数据，所以使用本机的字节序就可以了；而`DataView`视图的设计目的，是用来处理网络设备传来的数据，所以大端字节序或小端字节序是可以自行设定的。
+`DataView`视图提供更多操作选项，而且支持设定字节序。**在设计目的上，`ArrayBuffer`对象的各种`TypedArray`视图，是用来向网卡、声卡之类的本机设备传送数据，所以使用本机的字节序就可以了；而`DataView`视图的设计目的，是用来处理网络设备传来的数据，所以大端字节序或小端字节序是可以自行设定的。**
 
-`DataView`视图本身也是构造函数，接受一个`ArrayBuffer`对象作为参数，生成视图。
+**`DataView`视图本身也是构造函数，接受一个`ArrayBuffer`对象作为参数，生成视图：**
 
 ```javascript
 new DataView(ArrayBuffer buffer [, 字节起始位置 [, 长度]]);
@@ -772,7 +772,7 @@ const dv = new DataView(buffer);
 - **`getFloat32`**：读取 4 个字节，返回一个 32 位浮点数。
 - **`getFloat64`**：读取 8 个字节，返回一个 64 位浮点数。
 
-这一系列`get`方法的参数都是一个字节序号（不能是负数，否则会报错），表示从哪个字节开始读取。
+这一系列`get`方法的 *参数* 都是一个字节序号（不能是负数，否则会报错），表示从哪个字节开始读取。
 
 ```javascript
 const buffer = new ArrayBuffer(24);
@@ -814,7 +814,11 @@ DataView 视图提供 8 个方法写入内存。
 - **`setFloat32`**：写入 4 个字节的 32 位浮点数。
 - **`setFloat64`**：写入 8 个字节的 64 位浮点数。
 
-这一系列`set`方法，接受两个参数，第一个参数是字节序号，表示从哪个字节开始写入，第二个参数为写入的数据。对于那些写入两个或两个以上字节的方法，需要指定第三个参数，`false`或者`undefined`表示使用大端字节序写入，`true`表示使用小端字节序写入。
+这一系列`set`方法，接受3个参数：
+
+- 第1个参数是字节序号，表示从哪个字节开始写入；
+- 第2个参数为写入的数据。
+- 对于那些写入两个或两个以上字节的方法，需要指定第三个参数，`false`或者`undefined`表示使用大端字节序写入，`true`表示使用小端字节序写入。
 
 ```javascript
 // 在第1个字节，以大端字节序写入值为25的32位整数
@@ -1041,9 +1045,9 @@ onmessage = function (ev) {
 }
 ```
 
-线程之间的数据交换可以是各种格式，不仅仅是字符串，也可以是二进制数据。这种交换采用的是复制机制，即一个进程将需要分享的数据复制一份，通过`postMessage`方法交给另一个进程。如果数据量比较大，这种通信的效率显然比较低。很容易想到，这时可以留出一块内存区域，由主线程与 Worker 线程共享，两方都可以读写，那么就会大大提高效率，协作起来也会比较简单（不像`postMessage`那么麻烦）。
+**线程之间的数据交换可以是各种格式，不仅仅是字符串，也可以是二进制数据。这种交换采用的是复制机制，即一个进程将需要分享的数据复制一份，通过`postMessage`方法交给另一个进程。如果数据量比较大，这种通信的效率显然比较低。很容易想到，这时可以留出一块内存区域，由主线程与 Worker 线程共享，两方都可以读写，那么就会大大提高效率，协作起来也会比较简单（不像`postMessage`那么麻烦）。**
 
-ES2017 引入[`SharedArrayBuffer`](https://github.com/tc39/ecmascript_sharedmem/blob/master/TUTORIAL.md)，允许 Worker 线程与主线程共享同一块内存。`SharedArrayBuffer`的 API 与`ArrayBuffer`一模一样，唯一的区别是后者无法共享数据。
+**ES2017 引入[`SharedArrayBuffer`](https://github.com/tc39/ecmascript_sharedmem/blob/master/TUTORIAL.md)，允许 Worker 线程与主线程共享同一块内存。`SharedArrayBuffer`的 API 与`ArrayBuffer`一模一样，唯一的区别是`ArrayBuffer`无法共享数据。**
 
 ```javascript
 // 主线程
@@ -1111,7 +1115,7 @@ onmessage = function (ev) {
 
 ## Atomics 对象
 
-多线程共享内存，最大的问题就是如何防止两个线程同时修改某个地址，或者说，当一个线程修改共享内存以后，必须有一个机制让其他线程同步。SharedArrayBuffer API 提供`Atomics`对象，保证所有共享内存的操作都是“原子性”的，并且可以在所有线程内同步。
+**多线程共享内存，最大的问题就是如何防止两个线程同时修改某个地址，或者说，当一个线程修改共享内存以后，必须有一个机制让其他线程同步。SharedArrayBuffer API 提供`Atomics`对象，保证所有共享内存的操作都是“原子性”的，并且可以在所有线程内同步。**
 
 什么叫“原子性操作”呢？现代编程语言中，一条普通的命令被编译器处理以后，会变成多条机器指令。如果是单线程运行，这是没有问题的；多线程环境并且共享内存时，就会出问题，因为这一组机器指令的运行期间，可能会插入其他线程的指令，从而导致运行结果出错。请看下面的例子。
 
@@ -1163,7 +1167,18 @@ Atomics.load(typedArray, index)
 Atomics.store(typedArray, index, value)
 ```
 
-`store()`方法接受三个参数：`typedArray`对象（SharedArrayBuffer 的视图）、位置索引和值，返回`typedArray[index]`的值。`load()`方法只接受两个参数：`typedArray`对象（SharedArrayBuffer 的视图）和位置索引，也是返回`typedArray[index]`的值。
+**`store()`方法接受3个参数：**
+
+- `typedArray`对象（SharedArrayBuffer 的视图）
+- 位置索引
+- 值
+
+**`load()`方法接受2个参数：**
+
+- `typedArray`对象（SharedArrayBuffer 的视图）
+- 位置索引
+
+`store()`和`load()`都返回`typedArray[index]`的值。
 
 ```javascript
 // 主线程 main.js
