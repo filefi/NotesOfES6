@@ -80,7 +80,7 @@ MyClass.isTestable // false
 
 上面代码中，装饰器`testable`可以接受参数，这就等于可以修改装饰器的行为。
 
-注意，装饰器对类的行为的改变，是代码编译时发生的，而不是在运行时。这意味着，装饰器能在编译阶段运行代码。也就是说，装饰器本质就是编译时执行的函数。
+**注意，装饰器对类的行为的改变，是代码编译时发生的，而不是在运行时。这意味着，装饰器能在编译阶段运行代码。也就是说，装饰器本质就是编译时执行的函数。**
 
 前面的例子是为类添加一个静态属性，如果想添加实例属性，可以通过目标类的`prototype`对象操作。
 
@@ -152,7 +152,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(MyReactComponent);
 export default class MyReactComponent extends React.Component {}
 ```
 
-相对来说，后一种写法看上去更容易理解。
+相对来说，后一种写法看上去更容易理解。 
 
 ## 方法的装饰
 
