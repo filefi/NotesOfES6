@@ -33,3 +33,5 @@ nav:
   - 'Decorator': 'decorator.md'
   - '参考链接': 'reference.md'
 theme: readthedocs
+plugins:
+  - search
